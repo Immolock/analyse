@@ -298,6 +298,65 @@
 </head>
 <body>
 
+<div id="token-gate" style="display:none;position:fixed;inset:0;background:#0d1117;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:Arial,Helvetica,sans-serif;">
+  <div style="text-align:center;max-width:420px;padding:40px 24px;">
+    <div style="width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 24px;">🔒</div>
+    <div style="font-size:22px;font-weight:800;color:#f1f5f9;margin-bottom:10px;">Accès non autorisé</div>
+    <div style="font-size:15px;color:#64748b;line-height:1.6;margin-bottom:28px;">Ce rapport est réservé aux clients ImmoLock. Votre lien d'accès est invalide ou expiré.</div>
+    <a href="https://buy.stripe.com/3cIaEX1Hj74j8AGeeYgYU01" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:700;font-size:15px;">Obtenir mon accès — 9,90 €</a>
+    <div style="margin-top:16px;font-size:12px;color:#475569;">Déjà client ? Vérifiez votre email pour retrouver votre lien.</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var TOKENS_URL = 'https://immolock.github.io/analyse/tokens.json';
+  
+  function getTokenFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('token');
+  }
+  
+  function showGate() {
+    var gate = document.getElementById('token-gate');
+    if (gate) {
+      gate.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  
+  function hideGate() {
+    var gate = document.getElementById('token-gate');
+    if (gate) {
+      gate.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+  
+  var token = getTokenFromURL();
+  
+  if (!token) {
+    document.addEventListener('DOMContentLoaded', showGate);
+    return;
+  }
+  
+  fetch(TOKENS_URL + '?nocache=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.tokens && data.tokens.indexOf(token) !== -1) {
+        hideGate();
+      } else {
+        document.addEventListener('DOMContentLoaded', showGate);
+      }
+    })
+    .catch(function() {
+      // En cas d'erreur réseau, on laisse passer (fail open)
+      hideGate();
+    });
+})();
+</script>
+
+
 <header>
   <div class="header-inner">
     <div style="display:flex;align-items:center;gap:0;">
@@ -845,3 +904,4 @@ window.addEventListener('load',calculate);
 </script>
 </body>
 </html>
+
