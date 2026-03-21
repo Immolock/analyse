@@ -311,7 +311,7 @@
 <script>
 (function() {
   var SHEET_ID = '1n5IvG_MZs6xmfxzVEriymT5NAXgxLPxKCG2bB7El0RA';
-  var SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=Feuille1';
+  var SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=Feuille%201';
 
   function getTokenFromURL() {
     var params = new URLSearchParams(window.location.search);
@@ -344,27 +344,28 @@
   fetch(SHEET_URL)
     .then(function(r) { return r.text(); })
     .then(function(text) {
-      // Google Sheets renvoie du JSON enveloppé dans /*O_o*/google.visualization.Query.setResponse(...)
-      var json = text.replace(/^.*?google\.visualization\.Query\.setResponse\(/, '').replace(/\);\s*$/, '');
+      var json = text.replace(/^\/\*.*?\*\/\s*google\.visualization\.Query\.setResponse\(/, '').replace(/\);\s*$/, '');
       var data = JSON.parse(json);
       var rows = data.table.rows;
       var found = false;
-      for (var i = 0; i < rows.length; i++) {
-        var cell = rows[i].c[0];
-        if (cell && cell.v && cell.v.toString().trim() === token.trim()) {
-          found = true;
-          break;
+      if (rows) {
+        for (var i = 0; i < rows.length; i++) {
+          var cell = rows[i].c[0];
+          if (cell && cell.v && cell.v.toString().trim() === token.trim()) {
+            found = true;
+            break;
+          }
         }
       }
       if (found) {
         hideGate();
       } else {
-        document.addEventListener('DOMContentLoaded', showGate);
         showGate();
       }
     })
-    .catch(function() {
-      hideGate();
+    .catch(function(err) {
+      console.log('Erreur fetch:', err);
+      showGate();
     });
 })();
 </script>
