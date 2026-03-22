@@ -6,6 +6,7 @@
 <title>ImmoLock — Analyse Complète</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
     --bg:      #0d1117;
@@ -69,13 +70,6 @@
     color:#fff; font-size:11px; font-weight:700;
     padding:6px 14px; border-radius:99px;
     letter-spacing:0.8px; text-transform:uppercase;
-  }
-  .header-unlock {
-    background:linear-gradient(135deg,#3b82f6,#2563eb);
-    color:#fff; font-size:12px; font-weight:700;
-    padding:8px 16px; border-radius:99px;
-    letter-spacing:0.3px;
-    box-shadow:0 2px 10px rgba(59,130,246,0.3);
   }
 
   /* ── Hero ── */
@@ -172,12 +166,10 @@
   }
   .cashflow-hero .amount {
     font-family:Arial,Helvetica,sans-serif;
-    font-size:72px; font-weight:800; line-height:1; font-family:Arial,Helvetica,sans-serif; letter-spacing:-1px;
+    font-size:72px; font-weight:800; line-height:1; letter-spacing:-1px;
   }
   .cashflow-hero .amount.positive { color:#22b85d; }
   .cashflow-hero .amount.muted { color:#94a3b8; }
-
-
   .cashflow-hero .per-month { font-size:15px; color:var(--text3); margin-top:8px; }
   .cashflow-hero .verdict {
     margin-top:18px; display:inline-block;
@@ -198,7 +190,7 @@
   }
   .kpi:hover { border-color:var(--border); }
   .kpi-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; font-weight:600; }
-  .kpi-value { font-family:Arial,Helvetica,sans-serif; font-size:19px; font-weight:500; color:var(--text);  }
+  .kpi-value { font-family:Arial,Helvetica,sans-serif; font-size:19px; font-weight:500; color:var(--text); }
   .kpi-value.positive { color:var(--accent); }
   .kpi-value.negative { color:var(--danger); }
   .kpi-sub { font-size:11px; color:var(--text4); margin-top:4px; }
@@ -220,7 +212,7 @@
     font-weight:600;
   }
   .proj-table th:first-child { text-align:left; }
-  .proj-table td { text-align:right; padding:10px 12px; border-bottom:1px solid var(--border2); color:var(--text2); font-family:Arial,Helvetica,sans-serif; font-size:12px; }
+  .proj-table td { text-align:right; padding:10px 12px; border-bottom:1px solid var(--border2); color:var(--text2); font-size:12px; }
   .proj-table td:first-child { text-align:left; color:var(--text); font-weight:500; }
   .proj-table tr:hover td { background:rgba(255,255,255,0.04); }
 
@@ -246,7 +238,7 @@
   .fiscal-card .tag.neutral { background:rgba(100,116,139,0.1); color:var(--text3); }
   .fiscal-card .tag.complex { background:rgba(59,130,246,0.1); color:var(--warn); }
   .fiscal-card p { font-size:13px; color:var(--text2); line-height:1.6; }
-  .fiscal-card .impot strong { color:var(--text); font-size:17px; font-family:Arial,Helvetica,sans-serif; }
+  .fiscal-card .impot strong { color:var(--text); font-size:17px; }
 
   /* ── Stratégies ── */
   .strat-list { display:flex; flex-direction:column; gap:12px; }
@@ -277,6 +269,7 @@
     box-shadow:var(--shadow);
   }
   .btn-pdf:hover { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,0.08); transform:translateY(-1px); }
+  .btn-pdf:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
   .section-block { margin-top:48px; }
   #results { display:none; }
@@ -417,17 +410,10 @@
       <div class="section-label">Résultat global</div>
 
       <div class="cashflow-hero" id="cashflowHero">
-        <div class="cashflow-hero-top">
-          <div class="cashflow-hero-left">
-            <div class="label">Cashflow mensuel net</div>
-            <div class="amount" id="cashflowAmount">—</div>
-            <div class="per-month">après remboursement du prêt et charges</div>
-          </div>
-          <div class="cashflow-hero-right">
-            <div class="verdict" id="cashflowVerdict"></div>
-          </div>
-        </div>
-        <div class="cashflow-hero-bar"><div class="cashflow-hero-bar-fill" id="cashflowBar" style="width:0%;background:#3b82f6;"></div></div>
+        <div class="label">Cashflow mensuel net</div>
+        <div class="amount" id="cashflowAmount">—</div>
+        <div class="per-month">après remboursement du prêt et charges</div>
+        <div class="verdict" id="cashflowVerdict"></div>
       </div>
 
       <div class="kpi-grid">
@@ -489,12 +475,9 @@
     <!-- CTA Abonnement -->
     <div class="section-block">
       <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.06));border:1px solid rgba(59,130,246,0.25);border-radius:var(--radius);padding:36px;position:relative;overflow:hidden;">
-
-        <!-- Badge -->
         <div style="display:inline-block;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:99px;padding:4px 14px;margin-bottom:20px;">
           <span style="font-size:10px;font-weight:700;color:#3b82f6;letter-spacing:2px;text-transform:uppercase;">Vous analysez régulièrement ?</span>
         </div>
-
         <div style="font-size:22px;font-weight:800;color:#f1f5f9;margin-bottom:8px;line-height:1.2;">
           Passez en Starter et économisez<br>
           <span style="color:#3b82f6;">60 € sur vos 6 prochaines analyses</span>
@@ -502,10 +485,7 @@
         <div style="font-size:14px;color:#64748b;margin-bottom:28px;line-height:1.6;">
           Au lieu de 9,90 € par analyse, accédez à 3 analyses/mois + historique + simulation "et si".
         </div>
-
-        <!-- Cards pricing -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;">
-
           <!-- Starter -->
           <div style="background:rgba(59,130,246,0.1);border:1.5px solid rgba(59,130,246,0.35);border-radius:16px;padding:22px;position:relative;">
             <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);">
@@ -525,7 +505,6 @@
               <div style="font-size:13px;color:#475569;display:flex;align-items:center;gap:8px;"><span style="color:#334155;">✗</span> Suivi portefeuille</div>
             </div>
           </div>
-
           <!-- Pro -->
           <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:22px;">
             <div style="font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Pro</div>
@@ -544,10 +523,7 @@
               <div style="font-size:13px;color:#94a3b8;display:flex;align-items:center;gap:8px;"><span style="color:#22b85d;font-weight:700;">✓</span> Support prioritaire</div>
             </div>
           </div>
-
         </div>
-
-        <!-- CTAs -->
         <div style="display:flex;gap:12px;flex-wrap:wrap;">
           <a href="https://buy.stripe.com/3cIaEX1Hj74j8AGeeYgYU01"
              style="flex:1;min-width:180px;background:#3b82f6;color:#fff;text-decoration:none;padding:15px 24px;border-radius:12px;font-weight:700;font-size:15px;display:inline-block;text-align:center;transition:opacity 0.2s;"
@@ -560,11 +536,9 @@
             Passer en Pro — 29,90 €/mois
           </a>
         </div>
-
         <div style="margin-top:16px;font-size:12px;color:#475569;text-align:center;">
           Sans engagement — résiliable à tout moment
         </div>
-
       </div>
     </div>
 
@@ -574,7 +548,8 @@
       <div class="strat-list" id="stratList"></div>
     </div>
 
-    <button class="btn-pdf" onclick="window.print()">
+    <!-- Bouton PDF -->
+    <button class="btn-pdf" onclick="generatePDF()">
       <span>📄</span> Télécharger le rapport PDF complet
     </button>
 
@@ -584,19 +559,17 @@
 </div><!-- /container -->
 
 <script>
+// ── Base de données villes ────────────────────────────────────
+var VILLES_DB = [{"n":"Bourg-en-Bresse","c":"01000","l":10.5},{"n":"Oyonnax","c":"01100","l":9.2},{"n":"Ambérieu-en-Bugey","c":"01500","l":9.5},{"n":"Bellegarde-sur-Valserine","c":"01200","l":9.2},{"n":"Gex","c":"01170","l":11.0},{"n":"Ferney-Voltaire","c":"01210","l":12.1},{"n":"Pont-d'Ain","c":"01160","l":8.9},{"n":"Montluel","c":"01120","l":9.7},{"n":"Miribel","c":"01700","l":10.0},{"n":"Saint-Genis-Pouilly","c":"01630","l":11.8},{"n":"Prévessin-Moëns","c":"01280","l":11.6},{"n":"Divonne-les-Bains","c":"01220","l":12.1},{"n":"Laon","c":"02000","l":8.2},{"n":"Saint-Quentin","c":"02100","l":7.8},{"n":"Soissons","c":"02200","l":7.5},{"n":"Château-Thierry","c":"02400","l":7.2},{"n":"Hirson","c":"02500","l":6.6},{"n":"Tergnier","c":"02700","l":6.7},{"n":"Chauny","c":"02300","l":6.7},{"n":"Villers-Cotterêts","c":"02600","l":7.2},{"n":"Moulins","c":"03000","l":7.8},{"n":"Vichy","c":"03200","l":8.0},{"n":"Montluçon","c":"03100","l":7.0},{"n":"Cusset","c":"03300","l":7.2},{"n":"Yzeure","c":"03400","l":7.2},{"n":"Commentry","c":"03600","l":6.4},{"n":"Digne-les-Bains","c":"04000","l":10.2},{"n":"Manosque","c":"04100","l":10.7},{"n":"Sisteron","c":"04200","l":9.4},{"n":"Forcalquier","c":"04300","l":9.7},{"n":"Barcelonnette","c":"04400","l":9.2},{"n":"Gap","c":"05000","l":9.8},{"n":"Briançon","c":"05100","l":10.3},{"n":"Nice","c":"06000","l":15.8},{"n":"Cannes","c":"06400","l":17.7},{"n":"Antibes","c":"06600","l":16.6},{"n":"Grasse","c":"06130","l":13.9},{"n":"Menton","c":"06500","l":16.1},{"n":"Privas","c":"07000","l":8.5},{"n":"Aubenas","c":"07200","l":8.1},{"n":"Annonay","c":"07100","l":7.7},{"n":"Charleville-Mézières","c":"08000","l":8.0},{"n":"Sedan","c":"08200","l":6.8},{"n":"Foix","c":"09000","l":7.5},{"n":"Pamiers","c":"09100","l":7.1},{"n":"Troyes","c":"10000","l":8.8},{"n":"Carcassonne","c":"11000","l":9.0},{"n":"Narbonne","c":"11100","l":9.2},{"n":"Rodez","c":"12000","l":8.2},{"n":"Millau","c":"12100","l":7.5},{"n":"Marseille 1er","c":"13001","l":14.8},{"n":"Marseille 6ème","c":"13006","l":14.9},{"n":"Marseille 8ème","c":"13008","l":15.3},{"n":"Aix-en-Provence","c":"13100","l":15.3},{"n":"Aubagne","c":"13400","l":12.8},{"n":"Salon-de-Provence","c":"13300","l":12.5},{"n":"Arles","c":"13200","l":11.6},{"n":"Caen","c":"14000","l":11.5},{"n":"Lisieux","c":"14100","l":10.3},{"n":"Bayeux","c":"14400","l":10.6},{"n":"Deauville","c":"14800","l":13.8},{"n":"Aurillac","c":"15000","l":7.8},{"n":"Angoulême","c":"16000","l":8.5},{"n":"Cognac","c":"16100","l":7.8},{"n":"La Rochelle","c":"17000","l":10.8},{"n":"Rochefort","c":"17300","l":9.5},{"n":"Saintes","c":"17100","l":9.7},{"n":"Royan","c":"17200","l":11.9},{"n":"Bourges","c":"18000","l":8.0},{"n":"Vierzon","c":"18100","l":7.0},{"n":"Tulle","c":"19000","l":8.2},{"n":"Brive-la-Gaillarde","c":"19100","l":8.4},{"n":"Dijon","c":"21000","l":10.2},{"n":"Beaune","c":"21200","l":10.7},{"n":"Saint-Brieuc","c":"22000","l":9.5},{"n":"Lannion","c":"22300","l":9.0},{"n":"Dinan","c":"22100","l":8.7},{"n":"Périgueux","c":"24000","l":8.8},{"n":"Bergerac","c":"24100","l":8.1},{"n":"Sarlat-la-Canéda","c":"24200","l":8.6},{"n":"Besançon","c":"25000","l":10.8},{"n":"Montbéliard","c":"25200","l":9.5},{"n":"Pontarlier","c":"25300","l":10.3},{"n":"Valence","c":"26000","l":9.5},{"n":"Romans-sur-Isère","c":"26100","l":8.7},{"n":"Montélimar","c":"26200","l":9.5},{"n":"Évreux","c":"27000","l":9.8},{"n":"Vernon","c":"27200","l":9.3},{"n":"Chartres","c":"28000","l":9.5},{"n":"Dreux","c":"28100","l":8.6},{"n":"Brest","c":"29200","l":9.8},{"n":"Quimper","c":"29000","l":9.3},{"n":"Morlaix","c":"29600","l":8.6},{"n":"Nîmes","c":"30000","l":11.5},{"n":"Alès","c":"30100","l":10.1},{"n":"Uzès","c":"30700","l":11.3},{"n":"Toulouse","c":"31000","l":13.2},{"n":"Blagnac","c":"31700","l":12.5},{"n":"Colomiers","c":"31770","l":11.9},{"n":"Saint-Gaudens","c":"31800","l":11.2},{"n":"Auch","c":"32000","l":8.5},{"n":"Bordeaux","c":"33000","l":14.5},{"n":"Mérignac","c":"33700","l":13.3},{"n":"Pessac","c":"33600","l":13.1},{"n":"Arcachon","c":"33120","l":16.7},{"n":"Libourne","c":"33500","l":13.3},{"n":"Montpellier","c":"34000","l":13.8},{"n":"Sète","c":"34200","l":12.4},{"n":"Béziers","c":"34500","l":11.3},{"n":"Agde","c":"34300","l":13.1},{"n":"Rennes","c":"35000","l":12.5},{"n":"Saint-Malo","c":"35400","l":13.1},{"n":"Fougères","c":"35300","l":11.0},{"n":"Vitré","c":"35500","l":11.2},{"n":"Châteauroux","c":"36000","l":7.5},{"n":"Tours","c":"37000","l":10.5},{"n":"Amboise","c":"37400","l":10.0},{"n":"Chinon","c":"37500","l":9.2},{"n":"Grenoble","c":"38000","l":11.8},{"n":"Échirolles","c":"38130","l":10.4},{"n":"Voiron","c":"38500","l":10.4},{"n":"Vienne","c":"38200","l":10.6},{"n":"Bourgoin-Jallieu","c":"38300","l":10.4},{"n":"Lons-le-Saunier","c":"39000","l":9.5},{"n":"Dole","c":"39100","l":8.7},{"n":"Mont-de-Marsan","c":"40000","l":11.5},{"n":"Dax","c":"40100","l":12.1},{"n":"Hossegor","c":"40150","l":14.4},{"n":"Blois","c":"41000","l":9.2},{"n":"Vendôme","c":"41100","l":8.1},{"n":"Saint-Étienne","c":"42000","l":10.5},{"n":"Roanne","c":"42300","l":9.5},{"n":"Saint-Chamond","c":"42400","l":8.9},{"n":"Le Puy-en-Velay","c":"43000","l":8.5},{"n":"Nantes","c":"44000","l":13.5},{"n":"Saint-Nazaire","c":"44600","l":12.2},{"n":"La Baule-Escoublac","c":"44500","l":14.9},{"n":"Orléans","c":"45000","l":10.2},{"n":"Montargis","c":"45200","l":9.0},{"n":"Cahors","c":"46000","l":8.8},{"n":"Figeac","c":"46100","l":7.7},{"n":"Agen","c":"47000","l":9.5},{"n":"Villeneuve-sur-Lot","c":"47300","l":8.4},{"n":"Mende","c":"48000","l":7.8},{"n":"Angers","c":"49000","l":11.2},{"n":"Cholet","c":"49300","l":10.1},{"n":"Saumur","c":"49400","l":9.9},{"n":"Saint-Lô","c":"50000","l":9.8},{"n":"Cherbourg-en-Cotentin","c":"50100","l":9.3},{"n":"Granville","c":"50400","l":9.6},{"n":"Reims","c":"51100","l":10.5},{"n":"Châlons-en-Champagne","c":"51000","l":9.7},{"n":"Épernay","c":"51200","l":10.0},{"n":"Chaumont","c":"52000","l":8.2},{"n":"Saint-Dizier","c":"52100","l":7.2},{"n":"Laval","c":"53000","l":9.5},{"n":"Nancy","c":"54000","l":11.5},{"n":"Lunéville","c":"54300","l":9.8},{"n":"Bar-le-Duc","c":"55000","l":8.0},{"n":"Verdun","c":"55100","l":7.0},{"n":"Vannes","c":"56000","l":11.5},{"n":"Lorient","c":"56100","l":10.6},{"n":"Auray","c":"56400","l":10.9},{"n":"Quiberon","c":"56170","l":12.7},{"n":"Metz","c":"57000","l":11.2},{"n":"Thionville","c":"57100","l":10.6},{"n":"Forbach","c":"57600","l":9.5},{"n":"Nevers","c":"58000","l":8.0},{"n":"Lille","c":"59000","l":12.5},{"n":"Roubaix","c":"59100","l":9.8},{"n":"Tourcoing","c":"59200","l":10.0},{"n":"Dunkerque","c":"59140","l":11.0},{"n":"Valenciennes","c":"59300","l":10.2},{"n":"Douai","c":"59500","l":10.2},{"n":"Beauvais","c":"60000","l":11.8},{"n":"Compiègne","c":"60200","l":12.0},{"n":"Creil","c":"60100","l":10.6},{"n":"Alençon","c":"61000","l":8.8},{"n":"Flers","c":"61100","l":7.5},{"n":"Arras","c":"62000","l":10.8},{"n":"Calais","c":"62100","l":9.2},{"n":"Lens","c":"62300","l":8.4},{"n":"Boulogne-sur-Mer","c":"62200","l":9.2},{"n":"Clermont-Ferrand","c":"63000","l":10.5},{"n":"Riom","c":"63200","l":9.5},{"n":"Issoire","c":"63500","l":8.9},{"n":"Pau","c":"64000","l":12.8},{"n":"Bayonne","c":"64100","l":13.1},{"n":"Biarritz","c":"64200","l":16.0},{"n":"Anglet","c":"64600","l":13.8},{"n":"Saint-Jean-de-Luz","c":"64500","l":15.1},{"n":"Tarbes","c":"65000","l":9.2},{"n":"Lourdes","c":"65100","l":8.1},{"n":"Perpignan","c":"66000","l":11.8},{"n":"Argelès-sur-Mer","c":"66700","l":12.4},{"n":"Strasbourg","c":"67000","l":14.5},{"n":"Haguenau","c":"67500","l":13.3},{"n":"Sélestat","c":"67600","l":13.1},{"n":"Mulhouse","c":"68100","l":12.8},{"n":"Colmar","c":"68000","l":12.5},{"n":"Lyon 1er","c":"69001","l":18.2},{"n":"Lyon 2ème","c":"69002","l":18.5},{"n":"Lyon 3ème","c":"69003","l":16.8},{"n":"Lyon 4ème","c":"69004","l":17.3},{"n":"Lyon 5ème","c":"69005","l":16.2},{"n":"Lyon 6ème","c":"69006","l":17.8},{"n":"Lyon 7ème","c":"69007","l":16.0},{"n":"Lyon 8ème","c":"69008","l":15.5},{"n":"Lyon 9ème","c":"69009","l":14.5},{"n":"Villeurbanne","c":"69100","l":15.2},{"n":"Caluire-et-Cuire","c":"69300","l":15.7},{"n":"Bron","c":"69500","l":14.5},{"n":"Vénissieux","c":"69200","l":13.5},{"n":"Décines-Charpieu","c":"69150","l":14.0},{"n":"Tassin-la-Demi-Lune","c":"69160","l":15.8},{"n":"Écully","c":"69130","l":16.2},{"n":"Saint-Priest","c":"69800","l":14.0},{"n":"Oullins","c":"69600","l":15.2},{"n":"Chalon-sur-Saône","c":"71100","l":9.5},{"n":"Mâcon","c":"71000","l":9.0},{"n":"Le Creusot","c":"71200","l":7.8},{"n":"Le Mans","c":"72000","l":10.2},{"n":"Chambéry","c":"73000","l":12.8},{"n":"Aix-les-Bains","c":"73100","l":13.4},{"n":"Albertville","c":"73200","l":11.8},{"n":"Courchevel","c":"73120","l":25.6},{"n":"Val-d'Isère","c":"73150","l":28.2},{"n":"Bourg-Saint-Maurice","c":"73700","l":14.1},{"n":"Annecy","c":"74000","l":16.8},{"n":"Thonon-les-Bains","c":"74200","l":15.5},{"n":"Évian-les-Bains","c":"74500","l":16.8},{"n":"Cluses","c":"74300","l":14.8},{"n":"Chamonix-Mont-Blanc","c":"74400","l":21.0},{"n":"Annemasse","c":"74100","l":16.0},{"n":"Saint-Julien-en-Genevois","c":"74160","l":17.6},{"n":"Paris 1er","c":"75001","l":32.5},{"n":"Paris 2ème","c":"75002","l":31.4},{"n":"Paris 3ème","c":"75003","l":31.9},{"n":"Paris 4ème","c":"75004","l":32.8},{"n":"Paris 5ème","c":"75005","l":32.2},{"n":"Paris 6ème","c":"75006","l":33.6},{"n":"Paris 7ème","c":"75007","l":34.2},{"n":"Paris 8ème","c":"75008","l":33.1},{"n":"Paris 9ème","c":"75009","l":30.8},{"n":"Paris 10ème","c":"75010","l":29.9},{"n":"Paris 11ème","c":"75011","l":29.1},{"n":"Paris 12ème","c":"75012","l":27.9},{"n":"Paris 13ème","c":"75013","l":27.6},{"n":"Paris 14ème","c":"75014","l":28.5},{"n":"Paris 15ème","c":"75015","l":29.1},{"n":"Paris 16ème","c":"75016","l":31.9},{"n":"Paris 17ème","c":"75017","l":30.2},{"n":"Paris 18ème","c":"75018","l":27.9},{"n":"Paris 19ème","c":"75019","l":26.5},{"n":"Paris 20ème","c":"75020","l":26.2},{"n":"Rouen","c":"76000","l":12.5},{"n":"Le Havre","c":"76600","l":11.5},{"n":"Dieppe","c":"76200","l":11.0},{"n":"Melun","c":"77000","l":14.5},{"n":"Meaux","c":"77100","l":12.8},{"n":"Fontainebleau","c":"77300","l":15.2},{"n":"Versailles","c":"78000","l":19.2},{"n":"Saint-Germain-en-Laye","c":"78100","l":19.6},{"n":"Mantes-la-Jolie","c":"78200","l":15.4},{"n":"Niort","c":"79000","l":8.8},{"n":"Bressuire","c":"79300","l":7.2},{"n":"Amiens","c":"80000","l":10.8},{"n":"Abbeville","c":"80100","l":9.2},{"n":"Albi","c":"81000","l":10.2},{"n":"Castres","c":"81100","l":9.2},{"n":"Montauban","c":"82000","l":9.2},{"n":"Toulon","c":"83000","l":13.8},{"n":"Hyères","c":"83400","l":13.8},{"n":"Fréjus","c":"83600","l":14.1},{"n":"Saint-Raphaël","c":"83700","l":14.5},{"n":"Draguignan","c":"83300","l":12.1},{"n":"Saint-Tropez","c":"83990","l":24.8},{"n":"Sainte-Maxime","c":"83120","l":16.6},{"n":"Avignon","c":"84000","l":13.2},{"n":"Orange","c":"84100","l":12.1},{"n":"Carpentras","c":"84200","l":11.6},{"n":"Isle-sur-la-Sorgue","c":"84800","l":12.9},{"n":"La Roche-sur-Yon","c":"85000","l":11.5},{"n":"Les Sables-d'Olonne","c":"85100","l":12.7},{"n":"Poitiers","c":"86000","l":9.5},{"n":"Châtellerault","c":"86100","l":8.1},{"n":"Limoges","c":"87000","l":9.8},{"n":"Épinal","c":"88000","l":9.2},{"n":"Saint-Dié-des-Vosges","c":"88100","l":7.8},{"n":"Auxerre","c":"89000","l":9.0},{"n":"Sens","c":"89100","l":7.9},{"n":"Belfort","c":"90000","l":10.2},{"n":"Évry-Courcouronnes","c":"91000","l":14.5},{"n":"Palaiseau","c":"91120","l":17.3},{"n":"Massy","c":"91300","l":16.8},{"n":"Boulogne-Billancourt","c":"92100","l":23.6},{"n":"Neuilly-sur-Seine","c":"92200","l":25.9},{"n":"Levallois-Perret","c":"92300","l":24.3},{"n":"Issy-les-Moulineaux","c":"92130","l":22.9},{"n":"Nanterre","c":"92000","l":22.1},{"n":"Rueil-Malmaison","c":"92500","l":23.6},{"n":"Antony","c":"92160","l":22.9},{"n":"Montreuil","c":"93100","l":16.4},{"n":"Saint-Denis","c":"93200","l":15.7},{"n":"Créteil","c":"94000","l":18.5},{"n":"Vincennes","c":"94300","l":21.1},{"n":"Fontenay-sous-Bois","c":"94120","l":19.9},{"n":"Cergy","c":"95000","l":14.9},{"n":"Argenteuil","c":"95100","l":14.6},{"n":"Fort-de-France","c":"97200","l":13.4},{"n":"Saint-Denis de La Réunion","c":"97400","l":14.2}];
 
-  var VILLES_DB = [{"n":"Bourg-en-Bresse","c":"01000","l":10.5},{"n":"Oyonnax","c":"01100","l":9.2},{"n":"Ambérieu-en-Bugey","c":"01500","l":9.5},{"n":"Bellegarde-sur-Valserine","c":"01200","l":9.2},{"n":"Gex","c":"01170","l":11.0},{"n":"Ferney-Voltaire","c":"01210","l":12.1},{"n":"Pont-d'Ain","c":"01160","l":8.9},{"n":"Montluel","c":"01120","l":9.7},{"n":"Miribel","c":"01700","l":10.0},{"n":"Saint-Genis-Pouilly","c":"01630","l":11.8},{"n":"Prévessin-Moëns","c":"01280","l":11.6},{"n":"Divonne-les-Bains","c":"01220","l":12.1},{"n":"Laon","c":"02000","l":8.2},{"n":"Saint-Quentin","c":"02100","l":7.8},{"n":"Soissons","c":"02200","l":7.5},{"n":"Château-Thierry","c":"02400","l":7.2},{"n":"Hirson","c":"02500","l":6.6},{"n":"Tergnier","c":"02700","l":6.7},{"n":"Chauny","c":"02300","l":6.7},{"n":"Villers-Cotterêts","c":"02600","l":7.2},{"n":"Moulins","c":"03000","l":7.8},{"n":"Vichy","c":"03200","l":8.0},{"n":"Montluçon","c":"03100","l":7.0},{"n":"Cusset","c":"03300","l":7.2},{"n":"Yzeure","c":"03400","l":7.2},{"n":"Commentry","c":"03600","l":6.4},{"n":"Digne-les-Bains","c":"04000","l":10.2},{"n":"Manosque","c":"04100","l":10.7},{"n":"Sisteron","c":"04200","l":9.4},{"n":"Forcalquier","c":"04300","l":9.7},{"n":"Barcelonnette","c":"04400","l":9.2},{"n":"Château-Arnoux-Saint-Auban","c":"04160","l":9.0},{"n":"Gap","c":"05000","l":9.8},{"n":"Briançon","c":"05100","l":10.3},{"n":"Embrun","c":"05200","l":9.3},{"n":"Laragne-Montéglin","c":"05300","l":8.3},{"n":"Nice","c":"06000","l":15.8},{"n":"Nice Est","c":"06300","l":15.0},{"n":"Nice Nord","c":"06100","l":14.2},{"n":"Cannes","c":"06400","l":17.7},{"n":"Antibes","c":"06600","l":16.6},{"n":"Grasse","c":"06130","l":13.9},{"n":"Cagnes-sur-Mer","c":"06800","l":14.5},{"n":"Vence","c":"06140","l":14.2},{"n":"Menton","c":"06500","l":16.1},{"n":"Roquebrune-Cap-Martin","c":"06190","l":16.6},{"n":"Villeneuve-Loubet","c":"06270","l":15.0},{"n":"Vallauris","c":"06220","l":14.2},{"n":"Mougins","c":"06250","l":15.8},{"n":"Le Cannet","c":"06110","l":15.5},{"n":"Mandelieu-la-Napoule","c":"06210","l":15.8},{"n":"Sophia Antipolis","c":"06560","l":17.1},{"n":"Carros","c":"06510","l":13.9},{"n":"Saint-Laurent-du-Var","c":"06700","l":15.0},{"n":"Beausoleil","c":"06240","l":16.6},{"n":"Biot","c":"06410","l":15.5},{"n":"Valbonne","c":"06560","l":16.6},{"n":"Peymeinade","c":"06530","l":13.9},{"n":"Pegomas","c":"06580","l":13.9},{"n":"Auribeau-sur-Siagne","c":"06810","l":14.2},{"n":"Coursegoules","c":"06140","l":13.4},{"n":"Privas","c":"07000","l":8.5},{"n":"Aubenas","c":"07200","l":8.1},{"n":"Annonay","c":"07100","l":7.7},{"n":"Guilherand-Granges","c":"07500","l":8.1},{"n":"Tournon-sur-Rhône","c":"07300","l":7.8},{"n":"Le Teil","c":"07400","l":7.2},{"n":"Largentière","c":"07110","l":7.2},{"n":"Montélimar","c":"26200","l":9.5},{"n":"Charleville-Mézières","c":"08000","l":8.0},{"n":"Sedan","c":"08200","l":6.8},{"n":"Revin","c":"08500","l":6.4},{"n":"Givet","c":"08600","l":6.4},{"n":"Rethel","c":"08300","l":6.6},{"n":"Vouziers","c":"08400","l":6.4},{"n":"Foix","c":"09000","l":7.5},{"n":"Pamiers","c":"09100","l":7.1},{"n":"Saint-Girons","c":"09200","l":6.6},{"n":"Lavelanet","c":"09300","l":6.1},{"n":"Troyes","c":"10000","l":8.8},{"n":"Troyes Est","c":"10600","l":8.4},{"n":"Bar-sur-Aube","c":"10200","l":7.5},{"n":"Romilly-sur-Seine","c":"10100","l":7.5},{"n":"Nogent-sur-Seine","c":"10400","l":7.5},{"n":"Sainte-Savine","c":"10300","l":8.1},{"n":"Carcassonne","c":"11000","l":9.0},{"n":"Narbonne","c":"11100","l":9.2},{"n":"Limoux","c":"11300","l":7.6},{"n":"Castelnaudary","c":"11400","l":7.6},{"n":"Lézignan-Corbières","c":"11200","l":7.9},{"n":"Port-la-Nouvelle","c":"11210","l":8.3},{"n":"Rodez","c":"12000","l":8.2},{"n":"Millau","c":"12100","l":7.5},{"n":"Villefranche-de-Rouergue","c":"12200","l":7.0},{"n":"Decazeville","c":"12300","l":6.7},{"n":"Onet-le-Château","c":"12850","l":8.0},{"n":"Espalion","c":"12500","l":7.0},{"n":"Marseille 1er","c":"13001","l":14.8},{"n":"Marseille 2ème","c":"13002","l":13.1},{"n":"Marseille 3ème","c":"13003","l":12.1},{"n":"Marseille 4ème","c":"13004","l":12.5},{"n":"Marseille 5ème","c":"13005","l":12.2},{"n":"Marseille 6ème","c":"13006","l":14.9},{"n":"Marseille 7ème","c":"13007","l":15.6},{"n":"Marseille 8ème","c":"13008","l":15.3},{"n":"Marseille 9ème","c":"13009","l":13.5},{"n":"Marseille 10ème","c":"13010","l":11.6},{"n":"Marseille 11ème","c":"13011","l":11.4},{"n":"Marseille 12ème","c":"13012","l":12.1},{"n":"Marseille 13ème","c":"13013","l":12.5},{"n":"Marseille 14ème","c":"13014","l":11.1},{"n":"Marseille 15ème","c":"13015","l":10.6},{"n":"Marseille 16ème","c":"13016","l":11.6},{"n":"Aix-en-Provence","c":"13100","l":15.3},{"n":"Aubagne","c":"13400","l":12.8},{"n":"La Ciotat","c":"13600","l":13.5},{"n":"Salon-de-Provence","c":"13300","l":12.5},{"n":"Arles","c":"13200","l":11.6},{"n":"Martigues","c":"13500","l":12.1},{"n":"Istres","c":"13800","l":12.5},{"n":"Fos-sur-Mer","c":"13270","l":12.1},{"n":"Vitrolles","c":"13127","l":12.5},{"n":"Miramas","c":"13140","l":12.1},{"n":"Gardanne","c":"13120","l":12.5},{"n":"Allauch","c":"13190","l":13.5},{"n":"Bouc-Bel-Air","c":"13320","l":13.5},{"n":"Peypin","c":"13124","l":12.8},{"n":"Trets","c":"13530","l":12.5},{"n":"Pertuis","c":"84120","l":12.9},{"n":"Châteauneuf-les-Martigues","c":"13220","l":12.5},{"n":"Port-de-Bouc","c":"13110","l":11.6},{"n":"Carry-le-Rouet","c":"13620","l":14.9},{"n":"Sausset-les-Pins","c":"13960","l":14.9},{"n":"Cassis","c":"13260","l":16.3},{"n":"La Penne-sur-Huveaune","c":"13821","l":12.5},{"n":"Plan-de-Cuques","c":"13380","l":13.5},{"n":"Septèmes-les-Vallons","c":"13240","l":12.5},{"n":"Caen","c":"14000","l":11.5},{"n":"Hérouville-Saint-Clair","c":"14200","l":10.1},{"n":"Lisieux","c":"14100","l":10.3},{"n":"Bayeux","c":"14400","l":10.6},{"n":"Vire Normandie","c":"14500","l":9.8},{"n":"Honfleur","c":"14600","l":12.1},{"n":"Deauville","c":"14800","l":13.8},{"n":"Trouville-sur-Mer","c":"14360","l":12.7},{"n":"Dives-sur-Mer","c":"14160","l":10.1},{"n":"Mondeville","c":"14120","l":10.1},{"n":"Aurillac","c":"15000","l":7.8},{"n":"Saint-Flour","c":"15100","l":6.6},{"n":"Mauriac","c":"15200","l":6.2},{"n":"Riom-ès-Montagnes","c":"15400","l":6.2},{"n":"Angoulême","c":"16000","l":8.5},{"n":"Cognac","c":"16100","l":7.8},{"n":"Soyaux","c":"16800","l":7.7},{"n":"La Couronne","c":"16400","l":7.5},{"n":"Barbezieux-Saint-Hilaire","c":"16300","l":7.2},{"n":"Confolens","c":"16500","l":6.8},{"n":"La Rochelle","c":"17000","l":10.8},{"n":"Rochefort","c":"17300","l":9.5},{"n":"Saintes","c":"17100","l":9.7},{"n":"Royan","c":"17200","l":11.9},{"n":"Jonzac","c":"17500","l":8.9},{"n":"Saint-Jean-d'Angély","c":"17400","l":9.2},{"n":"Châtelaillon-Plage","c":"17340","l":11.3},{"n":"Aytré","c":"17440","l":10.3},{"n":"Périgny","c":"17180","l":9.9},{"n":"La Jarrie","c":"17220","l":9.5},{"n":"Lagord","c":"17140","l":10.3},{"n":"Puilboreau","c":"17138","l":9.9},{"n":"Bourges","c":"18000","l":8.0},{"n":"Vierzon","c":"18100","l":7.0},{"n":"Saint-Amand-Montrond","c":"18200","l":6.6},{"n":"Aubigny-sur-Nère","c":"18700","l":6.6},{"n":"Tulle","c":"19000","l":8.2},{"n":"Brive-la-Gaillarde","c":"19100","l":8.4},{"n":"Ussel","c":"19200","l":6.7},{"n":"Malemort","c":"19360","l":7.5},{"n":"Dijon","c":"21000","l":10.2},{"n":"Chenôve","c":"21300","l":9.0},{"n":"Longvic","c":"21600","l":9.2},{"n":"Quetigny","c":"21800","l":9.4},{"n":"Talant","c":"21240","l":9.4},{"n":"Beaune","c":"21200","l":10.7},{"n":"Montbard","c":"21500","l":8.4},{"n":"Is-sur-Tille","c":"21120","l":8.7},{"n":"Saint-Brieuc","c":"22000","l":9.5},{"n":"Lannion","c":"22300","l":9.0},{"n":"Dinan","c":"22100","l":8.7},{"n":"Loudéac","c":"22600","l":7.8},{"n":"Guingamp","c":"22200","l":8.4},{"n":"Plérin","c":"22190","l":8.7},{"n":"Lamballe","c":"22400","l":8.4},{"n":"Perros-Guirec","c":"22700","l":9.5},{"n":"Guéret","c":"23000","l":7.2},{"n":"Aubusson","c":"23200","l":5.9},{"n":"Périgueux","c":"24000","l":8.8},{"n":"Bergerac","c":"24100","l":8.1},{"n":"Sarlat-la-Canéda","c":"24200","l":8.6},{"n":"Brive","c":"19100","l":8.2},{"n":"Ribérac","c":"24600","l":7.5},{"n":"Nontron","c":"24300","l":7.0},{"n":"Besançon","c":"25000","l":10.8},{"n":"Montbéliard","c":"25200","l":9.5},{"n":"Pontarlier","c":"25300","l":10.3},{"n":"Audincourt","c":"25400","l":9.2},{"n":"Valentigney","c":"25700","l":9.2},{"n":"Héricourt","c":"70400","l":7.9},{"n":"Baume-les-Dames","c":"25110","l":9.2},{"n":"Morteau","c":"25500","l":9.9},{"n":"Valence","c":"26000","l":9.5},{"n":"Romans-sur-Isère","c":"26100","l":8.7},{"n":"Pierrelatte","c":"26700","l":8.4},{"n":"Bourg-lès-Valence","c":"26500","l":9.0},{"n":"Crest","c":"26400","l":8.4},{"n":"Die","c":"26150","l":8.4},{"n":"Nyons","c":"26110","l":8.6},{"n":"Évreux","c":"27000","l":9.8},{"n":"Vernon","c":"27200","l":9.3},{"n":"Louviers","c":"27400","l":9.0},{"n":"Bernay","c":"27300","l":8.6},{"n":"Pont-Audemer","c":"27500","l":8.6},{"n":"Gisors","c":"27140","l":8.8},{"n":"Chartres","c":"28000","l":9.5},{"n":"Dreux","c":"28100","l":8.6},{"n":"Châteaudun","c":"28200","l":8.1},{"n":"Nogent-le-Rotrou","c":"28400","l":7.8},{"n":"Lucé","c":"28110","l":8.6},{"n":"Mainvilliers","c":"28300","l":8.6},{"n":"Brest","c":"29200","l":9.8},{"n":"Quimper","c":"29000","l":9.3},{"n":"Morlaix","c":"29600","l":8.6},{"n":"Concarneau","c":"29900","l":9.0},{"n":"Douarnenez","c":"29100","l":8.3},{"n":"Landerneau","c":"29800","l":8.6},{"n":"Quimperlé","c":"29300","l":8.6},{"n":"Châteaulin","c":"29150","l":8.3},{"n":"Plougastel-Daoulas","c":"29470","l":9.3},{"n":"Guipavas","c":"29490","l":9.3},{"n":"Nîmes","c":"30000","l":11.5},{"n":"Alès","c":"30100","l":10.1},{"n":"Bagnols-sur-Cèze","c":"30200","l":9.8},{"n":"Uzès","c":"30700","l":11.3},{"n":"Le Grau-du-Roi","c":"30240","l":11.5},{"n":"Beaucaire","c":"30300","l":9.8},{"n":"Marguerittes","c":"30320","l":10.6},{"n":"Vauvert","c":"30600","l":10.1},{"n":"Saint-Gilles","c":"30800","l":9.8},{"n":"Aigues-Mortes","c":"30220","l":12.1},{"n":"Toulouse","c":"31000","l":13.2},{"n":"Toulouse Nord","c":"31200","l":12.5},{"n":"Toulouse Est","c":"31400","l":12.1},{"n":"Toulouse Sud","c":"31500","l":12.1},{"n":"Blagnac","c":"31700","l":12.5},{"n":"Colomiers","c":"31770","l":11.9},{"n":"Tournefeuille","c":"31170","l":12.1},{"n":"Balma","c":"31130","l":12.5},{"n":"Labège","c":"31670","l":11.9},{"n":"Ramonville-Saint-Agne","c":"31520","l":12.1},{"n":"L'Union","c":"31240","l":11.9},{"n":"Castanet-Tolosan","c":"31320","l":12.1},{"n":"Cugnaux","c":"31270","l":11.6},{"n":"Muret","c":"31600","l":11.6},{"n":"Saint-Gaudens","c":"31800","l":11.2},{"n":"Revel","c":"31250","l":11.2},{"n":"Villemur-sur-Tarn","c":"31340","l":11.2},{"n":"Plaisance-du-Touch","c":"31830","l":12.1},{"n":"Portet-sur-Garonne","c":"31120","l":11.9},{"n":"Pins-Justaret","c":"31860","l":11.9},{"n":"Auch","c":"32000","l":8.5},{"n":"Condom","c":"32100","l":7.2},{"n":"Fleurance","c":"32500","l":7.2},{"n":"Lombez","c":"32220","l":7.0},{"n":"Bordeaux","c":"33000","l":14.5},{"n":"Bordeaux Nord","c":"33300","l":13.8},{"n":"Bordeaux Sud","c":"33800","l":13.3},{"n":"Mérignac","c":"33700","l":13.3},{"n":"Pessac","c":"33600","l":13.1},{"n":"Talence","c":"33400","l":13.8},{"n":"Villenave-d'Ornon","c":"33140","l":12.8},{"n":"Bègles","c":"33130","l":12.8},{"n":"Gradignan","c":"33170","l":12.6},{"n":"Le Bouscat","c":"33110","l":14.2},{"n":"Eysines","c":"33320","l":12.8},{"n":"Blanquefort","c":"33290","l":12.3},{"n":"Arcachon","c":"33120","l":16.7},{"n":"La Teste-de-Buch","c":"33260","l":15.7},{"n":"Libourne","c":"33500","l":13.3},{"n":"Langon","c":"33210","l":12.3},{"n":"Blaye","c":"33390","l":12.3},{"n":"Pauillac","c":"33250","l":12.8},{"n":"Lesparre-Médoc","c":"33340","l":12.3},{"n":"Andernos-les-Bains","c":"33510","l":14.5},{"n":"Gujan-Mestras","c":"33470","l":15.2},{"n":"Le Teich","c":"33470","l":14.2},{"n":"Mios","c":"33380","l":13.3},{"n":"Biganos","c":"33380","l":13.1},{"n":"Salles","c":"33770","l":13.1},{"n":"Cestas","c":"33610","l":13.1},{"n":"Martignas-sur-Jalle","c":"33127","l":12.8},{"n":"Saint-Médard-en-Jalles","c":"33160","l":13.3},{"n":"Montpellier","c":"34000","l":13.8},{"n":"Montpellier Nord","c":"34090","l":12.7},{"n":"Montpellier Ouest","c":"34080","l":13.1},{"n":"Montpellier Est","c":"34070","l":12.4},{"n":"Lattes","c":"34970","l":13.1},{"n":"Castelnau-le-Lez","c":"34170","l":13.1},{"n":"Mauguio","c":"34130","l":12.4},{"n":"Pérols","c":"34470","l":12.7},{"n":"Palavas-les-Flots","c":"34250","l":13.8},{"n":"Lunel","c":"34400","l":11.3},{"n":"Sète","c":"34200","l":12.4},{"n":"Béziers","c":"34500","l":11.3},{"n":"Agde","c":"34300","l":13.1},{"n":"Frontignan","c":"34110","l":12.1},{"n":"Lodève","c":"34700","l":11.3},{"n":"Pézenas","c":"34120","l":11.7},{"n":"Clermont-l'Hérault","c":"34800","l":11.7},{"n":"Ganges","c":"34190","l":11.7},{"n":"Rennes","c":"35000","l":12.5},{"n":"Rennes Nord","c":"35700","l":11.5},{"n":"Cesson-Sévigné","c":"35510","l":11.9},{"n":"Bruz","c":"35170","l":11.0},{"n":"Saint-Jacques-de-la-Lande","c":"35136","l":11.0},{"n":"Pacé","c":"35740","l":11.2},{"n":"Betton","c":"35830","l":11.0},{"n":"Vezin-le-Coquet","c":"35132","l":11.2},{"n":"Fougères","c":"35300","l":11.0},{"n":"Vitré","c":"35500","l":11.2},{"n":"Saint-Malo","c":"35400","l":13.1},{"n":"Dinard","c":"35800","l":13.5},{"n":"Redon","c":"35600","l":11.0},{"n":"Châteaubourg","c":"35220","l":11.0},{"n":"Mordelles","c":"35310","l":11.2},{"n":"Châteauroux","c":"36000","l":7.5},{"n":"Issoudun","c":"36100","l":6.1},{"n":"Le Blanc","c":"36300","l":6.0},{"n":"Argenton-sur-Creuse","c":"36200","l":6.0},{"n":"Tours","c":"37000","l":10.5},{"n":"Tours Nord","c":"37100","l":10.0},{"n":"Tours Sud","c":"37200","l":9.7},{"n":"Joué-lès-Tours","c":"37300","l":9.7},{"n":"Saint-Pierre-des-Corps","c":"37700","l":9.2},{"n":"Amboise","c":"37400","l":10.0},{"n":"Chinon","c":"37500","l":9.2},{"n":"Loches","c":"37600","l":8.9},{"n":"Saint-Avertin","c":"37550","l":10.0},{"n":"La Riche","c":"37520","l":10.0},{"n":"Grenoble","c":"38000","l":11.8},{"n":"Échirolles","c":"38130","l":10.4},{"n":"Saint-Martin-d'Hères","c":"38400","l":10.4},{"n":"Meylan","c":"38240","l":11.2},{"n":"Fontaine","c":"38600","l":10.6},{"n":"Seyssinet-Pariset","c":"38170","l":10.4},{"n":"Crolles","c":"38920","l":10.9},{"n":"Voiron","c":"38500","l":10.4},{"n":"Vienne","c":"38200","l":10.6},{"n":"Bourgoin-Jallieu","c":"38300","l":10.4},{"n":"Villefontaine","c":"38090","l":10.0},{"n":"L'Isle-d'Abeau","c":"38080","l":10.0},{"n":"Sassenage","c":"38360","l":10.9},{"n":"Éybens","c":"38320","l":10.9},{"n":"Pont-de-Claix","c":"38800","l":10.4},{"n":"Gières","c":"38610","l":10.9},{"n":"Poisat","c":"38320","l":10.6},{"n":"Domène","c":"38420","l":10.6},{"n":"Vizille","c":"38220","l":10.4},{"n":"Uriage-les-Bains","c":"38410","l":11.6},{"n":"Lons-le-Saunier","c":"39000","l":9.5},{"n":"Dole","c":"39100","l":8.7},{"n":"Champagnole","c":"39300","l":8.1},{"n":"Saint-Claude","c":"39200","l":8.1},{"n":"Mont-de-Marsan","c":"40000","l":11.5},{"n":"Dax","c":"40100","l":12.1},{"n":"Biscarrosse","c":"40600","l":12.1},{"n":"Capbreton","c":"40130","l":13.2},{"n":"Hossegor","c":"40150","l":14.4},{"n":"Mimizan","c":"40200","l":11.3},{"n":"Saint-Paul-lès-Dax","c":"40990","l":11.3},{"n":"Soustons","c":"40140","l":11.7},{"n":"Blois","c":"41000","l":9.2},{"n":"Vendôme","c":"41100","l":8.1},{"n":"Romorantin-Lanthenay","c":"41200","l":7.5},{"n":"Contres","c":"41700","l":7.5},{"n":"Saint-Étienne","c":"42000","l":10.5},{"n":"Roanne","c":"42300","l":9.5},{"n":"Firminy","c":"42700","l":8.6},{"n":"Le Chambon-Feugerolles","c":"42500","l":8.6},{"n":"Rive-de-Gier","c":"42800","l":8.9},{"n":"Saint-Chamond","c":"42400","l":8.9},{"n":"Montbrison","c":"42600","l":9.2},{"n":"Andrézieux-Bouthéon","c":"42160","l":9.2},{"n":"Le Puy-en-Velay","c":"43000","l":8.5},{"n":"Brioude","c":"43100","l":7.0},{"n":"Yssingeaux","c":"43200","l":7.0},{"n":"Monistrol-sur-Loire","c":"43120","l":7.2},{"n":"Nantes","c":"44000","l":13.5},{"n":"Saint-Herblain","c":"44800","l":12.2},{"n":"Rezé","c":"44400","l":11.9},{"n":"Saint-Sébastien-sur-Loire","c":"44230","l":12.4},{"n":"Orvault","c":"44700","l":12.4},{"n":"Vertou","c":"44120","l":12.2},{"n":"Carquefou","c":"44470","l":11.9},{"n":"Bouguenais","c":"44340","l":11.9},{"n":"La Chapelle-sur-Erdre","c":"44240","l":12.4},{"n":"Sainte-Luce-sur-Loire","c":"44980","l":12.2},{"n":"Saint-Nazaire","c":"44600","l":12.2},{"n":"La Baule-Escoublac","c":"44500","l":14.9},{"n":"Pornichet","c":"44380","l":14.2},{"n":"Le Pouliguen","c":"44510","l":14.2},{"n":"Pornic","c":"44210","l":13.8},{"n":"Clisson","c":"44190","l":12.4},{"n":"Ancenis","c":"44150","l":11.9},{"n":"Châteaubriant","c":"44110","l":11.5},{"n":"Orléans","c":"45000","l":10.2},{"n":"Saint-Jean-de-Braye","c":"45800","l":9.4},{"n":"Saint-Jean-de-la-Ruelle","c":"45140","l":9.4},{"n":"Fleury-les-Aubrais","c":"45400","l":9.2},{"n":"Montargis","c":"45200","l":9.0},{"n":"Gien","c":"45500","l":8.7},{"n":"Pithiviers","c":"45300","l":8.4},{"n":"Châlette-sur-Loing","c":"45120","l":8.7},{"n":"Cahors","c":"46000","l":8.8},{"n":"Figeac","c":"46100","l":7.7},{"n":"Souillac","c":"46200","l":7.5},{"n":"Gourdon","c":"46300","l":7.2},{"n":"Agen","c":"47000","l":9.5},{"n":"Villeneuve-sur-Lot","c":"47300","l":8.4},{"n":"Marmande","c":"47200","l":8.1},{"n":"Tonneins","c":"47400","l":7.8},{"n":"Mende","c":"48000","l":7.8},{"n":"Florac","c":"48400","l":6.6},{"n":"Angers","c":"49000","l":11.2},{"n":"Angers Nord","c":"49100","l":10.3},{"n":"Cholet","c":"49300","l":10.1},{"n":"Saumur","c":"49400","l":9.9},{"n":"Saint-Barthélemy-d'Anjou","c":"49124","l":10.3},{"n":"Trélazé","c":"49800","l":9.9},{"n":"Les Ponts-de-Cé","c":"49130","l":10.1},{"n":"Avrillé","c":"49240","l":10.6},{"n":"Saint-Lô","c":"50000","l":9.8},{"n":"Cherbourg-en-Cotentin","c":"50100","l":9.3},{"n":"Coutances","c":"50200","l":8.6},{"n":"Avranches","c":"50300","l":8.6},{"n":"Granville","c":"50400","l":9.6},{"n":"Équeurdreville-Hainneville","c":"50120","l":8.6},{"n":"Reims","c":"51100","l":10.5},{"n":"Châlons-en-Champagne","c":"51000","l":9.7},{"n":"Épernay","c":"51200","l":10.0},{"n":"Vitry-le-François","c":"51300","l":8.6},{"n":"Tinqueux","c":"51430","l":9.7},{"n":"Saint-Memmie","c":"51470","l":9.2},{"n":"Chaumont","c":"52000","l":8.2},{"n":"Saint-Dizier","c":"52100","l":7.2},{"n":"Langres","c":"52200","l":7.0},{"n":"Laval","c":"53000","l":9.5},{"n":"Mayenne","c":"53100","l":8.1},{"n":"Château-Gontier","c":"53200","l":8.1},{"n":"Évron","c":"53600","l":7.8},{"n":"Nancy","c":"54000","l":11.5},{"n":"Vandœuvre-lès-Nancy","c":"54500","l":10.1},{"n":"Lunéville","c":"54300","l":9.8},{"n":"Toul","c":"54200","l":9.8},{"n":"Pont-à-Mousson","c":"54700","l":9.8},{"n":"Neuves-Maisons","c":"54230","l":10.1},{"n":"Jarville-la-Malgrange","c":"54140","l":10.1},{"n":"Laxou","c":"54520","l":10.6},{"n":"Bar-le-Duc","c":"55000","l":8.0},{"n":"Verdun","c":"55100","l":7.0},{"n":"Commercy","c":"55200","l":6.4},{"n":"Vannes","c":"56000","l":11.5},{"n":"Lorient","c":"56100","l":10.6},{"n":"Pontivy","c":"56300","l":9.8},{"n":"Auray","c":"56400","l":10.9},{"n":"Lanester","c":"56600","l":10.1},{"n":"Ploemeur","c":"56270","l":10.6},{"n":"Quiberon","c":"56170","l":12.7},{"n":"La Trinité-sur-Mer","c":"56470","l":12.7},{"n":"Carnac","c":"56340","l":12.1},{"n":"Belle-Île-en-Mer","c":"56360","l":13.2},{"n":"Metz","c":"57000","l":11.2},{"n":"Thionville","c":"57100","l":10.6},{"n":"Forbach","c":"57600","l":9.5},{"n":"Sarrebourg","c":"57400","l":9.5},{"n":"Sarreguemines","c":"57200","l":9.5},{"n":"Hayange","c":"57700","l":9.5},{"n":"Yutz","c":"57970","l":10.3},{"n":"Fameck","c":"57290","l":9.9},{"n":"Nevers","c":"58000","l":8.0},{"n":"Cosne-Cours-sur-Loire","c":"58200","l":6.6},{"n":"Clamecy","c":"58500","l":6.4},{"n":"Decize","c":"58300","l":6.4},{"n":"Lille","c":"59000","l":12.5},{"n":"Roubaix","c":"59100","l":9.8},{"n":"Tourcoing","c":"59200","l":10.0},{"n":"Villeneuve-d'Ascq","c":"59491","l":11.5},{"n":"Dunkerque","c":"59140","l":11.0},{"n":"Valenciennes","c":"59300","l":10.2},{"n":"Douai","c":"59500","l":10.2},{"n":"Armentières","c":"59280","l":10.2},{"n":"Marcq-en-Barœul","c":"59700","l":12.5},{"n":"Wattrelos","c":"59150","l":9.8},{"n":"Mons-en-Baroeul","c":"59370","l":10.6},{"n":"Lambersart","c":"59130","l":11.9},{"n":"Maubeuge","c":"59600","l":10.0},{"n":"Cambrai","c":"59400","l":10.2},{"n":"Hazebrouck","c":"59190","l":10.6},{"n":"Bailleul","c":"59270","l":10.2},{"n":"Béthune","c":"62400","l":9.2},{"n":"Bruay-la-Buissière","c":"62700","l":8.6},{"n":"Beauvais","c":"60000","l":11.8},{"n":"Compiègne","c":"60200","l":12.0},{"n":"Creil","c":"60100","l":10.6},{"n":"Senlis","c":"60300","l":12.4},{"n":"Nogent-sur-Oise","c":"60180","l":10.6},{"n":"Montataire","c":"60160","l":10.4},{"n":"Méru","c":"60110","l":10.6},{"n":"Chantilly","c":"60500","l":12.4},{"n":"Alençon","c":"61000","l":8.8},{"n":"Flers","c":"61100","l":7.5},{"n":"Argentan","c":"61200","l":7.5},{"n":"L'Aigle","c":"61300","l":7.2},{"n":"Arras","c":"62000","l":10.8},{"n":"Calais","c":"62100","l":9.2},{"n":"Lens","c":"62300","l":8.4},{"n":"Boulogne-sur-Mer","c":"62200","l":9.2},{"n":"Saint-Omer","c":"62500","l":9.2},{"n":"Henin-Beaumont","c":"62110","l":8.6},{"n":"Liévin","c":"62800","l":8.4},{"n":"Carvin","c":"62220","l":8.6},{"n":"Clermont-Ferrand","c":"63000","l":10.5},{"n":"Riom","c":"63200","l":9.5},{"n":"Thiers","c":"63300","l":8.9},{"n":"Issoire","c":"63500","l":8.9},{"n":"Cournon-d'Auvergne","c":"63800","l":9.7},{"n":"Chamalières","c":"63400","l":10.0},{"n":"Beaumont","c":"63110","l":9.7},{"n":"Aubière","c":"63170","l":9.7},{"n":"Pau","c":"64000","l":12.8},{"n":"Bayonne","c":"64100","l":13.1},{"n":"Biarritz","c":"64200","l":16.0},{"n":"Anglet","c":"64600","l":13.8},{"n":"Hendaye","c":"64700","l":14.1},{"n":"Saint-Jean-de-Luz","c":"64500","l":15.1},{"n":"Orthez","c":"64300","l":11.3},{"n":"Oloron-Sainte-Marie","c":"64400","l":10.9},{"n":"Mourenx","c":"64150","l":10.2},{"n":"Lons","c":"64140","l":12.2},{"n":"Tarbes","c":"65000","l":9.2},{"n":"Lourdes","c":"65100","l":8.1},{"n":"Bagnères-de-Bigorre","c":"65200","l":7.5},{"n":"Vic-en-Bigorre","c":"65500","l":7.4},{"n":"Perpignan","c":"66000","l":11.8},{"n":"Canet-en-Roussillon","c":"66140","l":12.0},{"n":"Saint-Estève","c":"66240","l":10.9},{"n":"Rivesaltes","c":"66600","l":10.4},{"n":"Argelès-sur-Mer","c":"66700","l":12.4},{"n":"Collioure","c":"66190","l":13.0},{"n":"Prades","c":"66500","l":10.0},{"n":"Céret","c":"66400","l":10.6},{"n":"Strasbourg","c":"67000","l":14.5},{"n":"Illkirch-Graffenstaden","c":"67400","l":13.1},{"n":"Schiltigheim","c":"67300","l":13.3},{"n":"Hoenheim","c":"67800","l":12.8},{"n":"Ostwald","c":"67540","l":12.8},{"n":"Lingolsheim","c":"67380","l":12.8},{"n":"Oberhausbergen","c":"67205","l":13.3},{"n":"Bischheim","c":"67800","l":12.8},{"n":"Haguenau","c":"67500","l":13.3},{"n":"Saverne","c":"67700","l":12.8},{"n":"Sélestat","c":"67600","l":13.1},{"n":"Obernai","c":"67210","l":13.8},{"n":"Molsheim","c":"67120","l":13.3},{"n":"Erstein","c":"67150","l":12.8},{"n":"Mulhouse","c":"68100","l":12.8},{"n":"Colmar","c":"68000","l":12.5},{"n":"Saint-Louis","c":"68300","l":12.2},{"n":"Wittenheim","c":"68270","l":11.3},{"n":"Rixheim","c":"68170","l":11.5},{"n":"Guebwiller","c":"68500","l":11.3},{"n":"Thann","c":"68800","l":10.9},{"n":"Cernay","c":"68700","l":10.9},{"n":"Illzach","c":"68110","l":11.3},{"n":"Kingersheim","c":"68260","l":11.3},{"n":"Lyon 1er","c":"69001","l":18.2},{"n":"Lyon 2ème","c":"69002","l":18.5},{"n":"Lyon 3ème","c":"69003","l":16.8},{"n":"Lyon 4ème","c":"69004","l":17.3},{"n":"Lyon 5ème","c":"69005","l":16.2},{"n":"Lyon 6ème","c":"69006","l":17.8},{"n":"Lyon 7ème","c":"69007","l":16.0},{"n":"Lyon 8ème","c":"69008","l":15.5},{"n":"Lyon 9ème","c":"69009","l":14.5},{"n":"Villeurbanne","c":"69100","l":15.2},{"n":"Caluire-et-Cuire","c":"69300","l":15.7},{"n":"Bron","c":"69500","l":14.5},{"n":"Vénissieux","c":"69200","l":13.5},{"n":"Vaulx-en-Velin","c":"69120","l":13.2},{"n":"Décines-Charpieu","c":"69150","l":14.0},{"n":"Meyzieu","c":"69330","l":14.4},{"n":"Tassin-la-Demi-Lune","c":"69160","l":15.8},{"n":"Écully","c":"69130","l":16.2},{"n":"Rillieux-la-Pape","c":"69140","l":14.0},{"n":"Saint-Priest","c":"69800","l":14.0},{"n":"Mions","c":"69780","l":14.5},{"n":"Corbas","c":"69960","l":14.0},{"n":"Genas","c":"69740","l":14.8},{"n":"Chassieu","c":"69680","l":14.5},{"n":"Givors","c":"69700","l":13.5},{"n":"Grigny","c":"69520","l":13.5},{"n":"Saint-Fons","c":"69190","l":13.5},{"n":"Pierre-Bénite","c":"69310","l":14.5},{"n":"Oullins","c":"69600","l":15.2},{"n":"Saint-Genis-Laval","c":"69230","l":15.2},{"n":"Vesoul","c":"70000","l":8.8},{"n":"Lure","c":"70200","l":7.2},{"n":"Gray","c":"70100","l":7.2},{"n":"Chalon-sur-Saône","c":"71100","l":9.5},{"n":"Mâcon","c":"71000","l":9.0},{"n":"Le Creusot","c":"71200","l":7.8},{"n":"Montceau-les-Mines","c":"71300","l":7.6},{"n":"Autun","c":"71400","l":7.8},{"n":"Tournus","c":"71700","l":8.1},{"n":"Le Mans","c":"72000","l":10.2},{"n":"La Flèche","c":"72200","l":8.7},{"n":"Sablé-sur-Sarthe","c":"72300","l":8.7},{"n":"Mamers","c":"72600","l":8.2},{"n":"Chambéry","c":"73000","l":12.8},{"n":"La Ravoire","c":"73490","l":11.5},{"n":"Barberaz","c":"73000","l":11.8},{"n":"Challes-les-Eaux","c":"73190","l":11.3},{"n":"Cognin","c":"73160","l":11.3},{"n":"Aix-les-Bains","c":"73100","l":13.4},{"n":"Albertville","c":"73200","l":11.8},{"n":"Moûtiers","c":"73600","l":11.8},{"n":"Saint-Jean-de-Maurienne","c":"73300","l":11.3},{"n":"Modane","c":"73500","l":10.9},{"n":"Courchevel","c":"73120","l":25.6},{"n":"Méribel","c":"73550","l":23.0},{"n":"Val-d'Isère","c":"73150","l":28.2},{"n":"Tignes","c":"73320","l":23.0},{"n":"Les Menuires","c":"73440","l":19.2},{"n":"Bourg-Saint-Maurice","c":"73700","l":14.1},{"n":"Annecy","c":"74000","l":16.8},{"n":"Cran-Gevrier","c":"74960","l":15.5},{"n":"Seynod","c":"74600","l":15.5},{"n":"Meythet","c":"74960","l":15.1},{"n":"Annecy-le-Vieux","c":"74940","l":17.1},{"n":"Pringy","c":"74370","l":16.0},{"n":"Thonon-les-Bains","c":"74200","l":15.5},{"n":"Évian-les-Bains","c":"74500","l":16.8},{"n":"Cluses","c":"74300","l":14.8},{"n":"Bonneville","c":"74130","l":14.3},{"n":"Sallanches","c":"74700","l":14.8},{"n":"Chamonix-Mont-Blanc","c":"74400","l":21.0},{"n":"Annemasse","c":"74100","l":16.0},{"n":"Gaillard","c":"74240","l":16.0},{"n":"Ambilly","c":"74100","l":16.0},{"n":"Étrembières","c":"74100","l":16.0},{"n":"Saint-Julien-en-Genevois","c":"74160","l":17.6},{"n":"Archamps","c":"74160","l":17.6},{"n":"Collonges-sous-Salève","c":"74160","l":17.6},{"n":"Scientrier","c":"74930","l":16.0},{"n":"La Roche-sur-Foron","c":"74800","l":15.5},{"n":"Rumilly","c":"74150","l":15.1},{"n":"Faverges","c":"74210","l":14.8},{"n":"Ugine","c":"73400","l":10.9},{"n":"Paris 1er","c":"75001","l":32.5},{"n":"Paris 2ème","c":"75002","l":31.4},{"n":"Paris 3ème","c":"75003","l":31.9},{"n":"Paris 4ème","c":"75004","l":32.8},{"n":"Paris 5ème","c":"75005","l":32.2},{"n":"Paris 6ème","c":"75006","l":33.6},{"n":"Paris 7ème","c":"75007","l":34.2},{"n":"Paris 8ème","c":"75008","l":33.1},{"n":"Paris 9ème","c":"75009","l":30.8},{"n":"Paris 10ème","c":"75010","l":29.9},{"n":"Paris 11ème","c":"75011","l":29.1},{"n":"Paris 12ème","c":"75012","l":27.9},{"n":"Paris 13ème","c":"75013","l":27.6},{"n":"Paris 14ème","c":"75014","l":28.5},{"n":"Paris 15ème","c":"75015","l":29.1},{"n":"Paris 16ème","c":"75016","l":31.9},{"n":"Paris 17ème","c":"75017","l":30.2},{"n":"Paris 18ème","c":"75018","l":27.9},{"n":"Paris 19ème","c":"75019","l":26.5},{"n":"Paris 20ème","c":"75020","l":26.2},{"n":"Rouen","c":"76000","l":12.5},{"n":"Le Havre","c":"76600","l":11.5},{"n":"Dieppe","c":"76200","l":11.0},{"n":"Fécamp","c":"76400","l":10.6},{"n":"Mont-Saint-Aignan","c":"76130","l":11.9},{"n":"Sotteville-lès-Rouen","c":"76300","l":11.2},{"n":"Saint-Étienne-du-Rouvray","c":"76800","l":10.6},{"n":"Grand-Quevilly","c":"76120","l":11.0},{"n":"Petit-Quevilly","c":"76140","l":11.0},{"n":"Déville-lès-Rouen","c":"76250","l":11.2},{"n":"Melun","c":"77000","l":14.5},{"n":"Meaux","c":"77100","l":12.8},{"n":"Chelles","c":"77500","l":13.8},{"n":"Pontault-Combault","c":"77340","l":13.8},{"n":"Savigny-le-Temple","c":"77176","l":12.8},{"n":"Moissy-Cramayel","c":"77550","l":12.8},{"n":"Montereau-Fault-Yonne","c":"77130","l":11.9},{"n":"Nemours","c":"77140","l":12.3},{"n":"Fontainebleau","c":"77300","l":15.2},{"n":"Avon","c":"77210","l":14.2},{"n":"Versailles","c":"78000","l":19.2},{"n":"Saint-Germain-en-Laye","c":"78100","l":19.6},{"n":"Mantes-la-Jolie","c":"78200","l":15.4},{"n":"Poissy","c":"78300","l":16.6},{"n":"Sartrouville","c":"78500","l":16.6},{"n":"Élancourt","c":"78990","l":16.1},{"n":"Guyancourt","c":"78280","l":17.1},{"n":"Trappes","c":"78190","l":15.4},{"n":"Vélizy-Villacoublay","c":"78140","l":18.4},{"n":"Rambouillet","c":"78120","l":17.1},{"n":"Niort","c":"79000","l":8.8},{"n":"Bressuire","c":"79300","l":7.2},{"n":"Parthenay","c":"79200","l":7.2},{"n":"Thouars","c":"79100","l":7.2},{"n":"Amiens","c":"80000","l":10.8},{"n":"Abbeville","c":"80100","l":9.2},{"n":"Albert","c":"80300","l":8.9},{"n":"Péronne","c":"80200","l":8.9},{"n":"Albi","c":"81000","l":10.2},{"n":"Castres","c":"81100","l":9.2},{"n":"Gaillac","c":"81600","l":9.0},{"n":"Mazamet","c":"81200","l":8.4},{"n":"Carmaux","c":"81400","l":8.2},{"n":"Lavaur","c":"81500","l":9.0},{"n":"Montauban","c":"82000","l":9.2},{"n":"Castelsarrasin","c":"82100","l":7.8},{"n":"Moissac","c":"82200","l":7.5},{"n":"Toulon","c":"83000","l":13.8},{"n":"La Seyne-sur-Mer","c":"83500","l":12.1},{"n":"Hyères","c":"83400","l":13.8},{"n":"Fréjus","c":"83600","l":14.1},{"n":"Saint-Raphaël","c":"83700","l":14.5},{"n":"Draguignan","c":"83300","l":12.1},{"n":"Brignoles","c":"83170","l":12.1},{"n":"Sanary-sur-Mer","c":"83110","l":14.5},{"n":"Bandol","c":"83150","l":15.2},{"n":"Six-Fours-les-Plages","c":"83140","l":13.5},{"n":"La Garde","c":"83130","l":12.4},{"n":"La Valette-du-Var","c":"83160","l":12.7},{"n":"Ollioules","c":"83190","l":12.7},{"n":"Saint-Tropez","c":"83990","l":24.8},{"n":"Sainte-Maxime","c":"83120","l":16.6},{"n":"Le Lavandou","c":"83980","l":15.9},{"n":"Cogolin","c":"83310","l":14.5},{"n":"Grimaud","c":"83310","l":15.2},{"n":"Avignon","c":"84000","l":13.2},{"n":"Orange","c":"84100","l":12.1},{"n":"Carpentras","c":"84200","l":11.6},{"n":"Apt","c":"84400","l":11.9},{"n":"Cavaillon","c":"84300","l":11.9},{"n":"Isle-sur-la-Sorgue","c":"84800","l":12.9},{"n":"Bollène","c":"84500","l":11.2},{"n":"La Roche-sur-Yon","c":"85000","l":11.5},{"n":"Les Sables-d'Olonne","c":"85100","l":12.7},{"n":"Challans","c":"85300","l":10.3},{"n":"Fontenay-le-Comte","c":"85200","l":9.8},{"n":"Saint-Jean-de-Monts","c":"85160","l":11.5},{"n":"Noirmoutier-en-l'Île","c":"85330","l":12.1},{"n":"L'Île-d'Yeu","c":"85350","l":13.2},{"n":"La Tranche-sur-Mer","c":"85360","l":11.5},{"n":"Poitiers","c":"86000","l":9.5},{"n":"Châtellerault","c":"86100","l":8.1},{"n":"Loudun","c":"86200","l":7.6},{"n":"Limoges","c":"87000","l":9.8},{"n":"Saint-Junien","c":"87200","l":8.3},{"n":"Rochechouart","c":"87600","l":7.8},{"n":"Bellac","c":"87300","l":7.6},{"n":"Épinal","c":"88000","l":9.2},{"n":"Saint-Dié-des-Vosges","c":"88100","l":7.8},{"n":"Remiremont","c":"88200","l":7.8},{"n":"Gérardmer","c":"88400","l":8.5},{"n":"Auxerre","c":"89000","l":9.0},{"n":"Sens","c":"89100","l":7.9},{"n":"Joigny","c":"89300","l":7.4},{"n":"Avallon","c":"89200","l":7.4},{"n":"Belfort","c":"90000","l":10.2},{"n":"Delle","c":"90100","l":8.7},{"n":"Offemont","c":"90300","l":9.2},{"n":"Bavilliers","c":"90800","l":9.0},{"n":"Évry-Courcouronnes","c":"91000","l":14.5},{"n":"Corbeil-Essonnes","c":"91100","l":14.0},{"n":"Palaiseau","c":"91120","l":17.3},{"n":"Massy","c":"91300","l":16.8},{"n":"Longjumeau","c":"91160","l":15.7},{"n":"Sainte-Geneviève-des-Bois","c":"91700","l":16.2},{"n":"Yerres","c":"91330","l":16.2},{"n":"Brunoy","c":"91800","l":15.7},{"n":"Viry-Châtillon","c":"91170","l":15.2},{"n":"Ris-Orangis","c":"91130","l":14.5},{"n":"Boulogne-Billancourt","c":"92100","l":23.6},{"n":"Neuilly-sur-Seine","c":"92200","l":25.9},{"n":"Levallois-Perret","c":"92300","l":24.3},{"n":"Issy-les-Moulineaux","c":"92130","l":22.9},{"n":"Nanterre","c":"92000","l":22.1},{"n":"Colombes","c":"92700","l":21.4},{"n":"Asnières-sur-Seine","c":"92600","l":22.5},{"n":"Clichy","c":"92110","l":21.4},{"n":"Rueil-Malmaison","c":"92500","l":23.6},{"n":"Antony","c":"92160","l":22.9},{"n":"Clamart","c":"92140","l":22.5},{"n":"Châtenay-Malabry","c":"92290","l":22.5},{"n":"Montrouge","c":"92120","l":23.6},{"n":"Malakoff","c":"92240","l":22.9},{"n":"Vanves","c":"92170","l":23.6},{"n":"Châtillon","c":"92320","l":22.5},{"n":"Montreuil","c":"93100","l":16.4},{"n":"Saint-Denis","c":"93200","l":15.7},{"n":"Aubervilliers","c":"93300","l":15.1},{"n":"Bobigny","c":"93000","l":15.1},{"n":"Pantin","c":"93500","l":16.0},{"n":"Noisy-le-Grand","c":"93160","l":16.4},{"n":"Rosny-sous-Bois","c":"93110","l":16.0},{"n":"Bondy","c":"93140","l":15.1},{"n":"Aulnay-sous-Bois","c":"93600","l":15.1},{"n":"Épinay-sur-Seine","c":"93800","l":15.1},{"n":"Créteil","c":"94000","l":18.5},{"n":"Vincennes","c":"94300","l":21.1},{"n":"Saint-Mandé","c":"94160","l":21.5},{"n":"Fontenay-sous-Bois","c":"94120","l":19.9},{"n":"Nogent-sur-Marne","c":"94130","l":20.5},{"n":"Alfortville","c":"94140","l":17.9},{"n":"Vitry-sur-Seine","c":"94400","l":17.2},{"n":"Ivry-sur-Seine","c":"94200","l":17.6},{"n":"Charenton-le-Pont","c":"94220","l":20.5},{"n":"Saint-Maur-des-Fossés","c":"94100","l":20.5},{"n":"Cergy","c":"95000","l":14.9},{"n":"Pontoise","c":"95300","l":14.6},{"n":"Sarcelles","c":"95200","l":13.8},{"n":"Argenteuil","c":"95100","l":14.6},{"n":"Garges-lès-Gonesse","c":"95140","l":13.3},{"n":"Gonesse","c":"95500","l":13.8},{"n":"Enghien-les-Bains","c":"95880","l":17.5},{"n":"Saint-Gratien","c":"95210","l":16.2},{"n":"Franconville","c":"95130","l":14.9},{"n":"Ermont","c":"95120","l":15.4},{"n":"Pointe-à-Pitre","c":"97110","l":12.8},{"n":"Basse-Terre","c":"97100","l":11.5},{"n":"Les Abymes","c":"97139","l":11.9},{"n":"Le Gosier","c":"97190","l":12.2},{"n":"Sainte-Anne Guadeloupe","c":"97180","l":11.9},{"n":"Fort-de-France","c":"97200","l":13.4},{"n":"Le Lamentin","c":"97232","l":12.2},{"n":"Saint-Joseph Martinique","c":"97212","l":11.5},{"n":"Le Robert","c":"97231","l":11.3},{"n":"Cayenne","c":"97300","l":10.5},{"n":"Saint-Laurent-du-Maroni","c":"97320","l":9.7},{"n":"Kourou","c":"97310","l":10.3},{"n":"Matoury","c":"97351","l":10.0},{"n":"Saint-Denis de La Réunion","c":"97400","l":14.2},{"n":"Saint-Pierre Réunion","c":"97410","l":12.8},{"n":"Le Tampon","c":"97430","l":12.2},{"n":"Saint-Paul Réunion","c":"97460","l":12.4},{"n":"Mamoudzou","c":"97600","l":9.8},{"n":"Koungou","c":"97690","l":9.3}];
-
-  // Recherche ville par nom ou CP
-  function rechercheVille(query) {
-    if (!query || query.length < 2) return [];
-    var q = query.toLowerCase().replace(/[éèêë]/g,'e').replace(/[àâä]/g,'a').replace(/[ùûü]/g,'u').replace(/[ôö]/g,'o').replace(/[îï]/g,'i').replace(/[çc]/g,'c');
-    return VILLES_DB.filter(function(v) {
-      var n = v.n.toLowerCase().replace(/[éèêë]/g,'e').replace(/[àâä]/g,'a').replace(/[ùûü]/g,'u').replace(/[ôö]/g,'o').replace(/[îï]/g,'i').replace(/[çc]/g,'c');
-      return n.includes(q) || v.c.includes(query);
-    }).slice(0, 6);
-  }
-
+function rechercheVille(query) {
+  if (!query || query.length < 2) return [];
+  var q = query.toLowerCase().replace(/[éèêë]/g,'e').replace(/[àâä]/g,'a').replace(/[ùûü]/g,'u').replace(/[ôö]/g,'o').replace(/[îï]/g,'i').replace(/[ç]/g,'c');
+  return VILLES_DB.filter(function(v) {
+    var n = v.n.toLowerCase().replace(/[éèêë]/g,'e').replace(/[àâä]/g,'a').replace(/[ùûü]/g,'u').replace(/[ôö]/g,'o').replace(/[îï]/g,'i').replace(/[ç]/g,'c');
+    return n.includes(q) || v.c.includes(query);
+  }).slice(0, 6);
+}
 
 function searchVille(val) {
   var sugg = document.getElementById('villeSugg');
@@ -607,16 +580,13 @@ function searchVille(val) {
     var v = results[i];
     html += '<div data-nom="' + v.n.replace(/"/g,'&quot;') + '" data-cp="' + v.c + '" data-loyer="' + v.l + '" '
       + 'style="padding:10px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);font-family:Arial,sans-serif;">'
-      + '<div>'
-      + '<div style="font-size:14px;color:#f1f5f9;font-weight:500;">' + v.n + '</div>'
-      + '<div style="font-size:11px;color:#64748b;">' + v.c + '</div>'
-      + '</div>'
+      + '<div><div style="font-size:14px;color:#f1f5f9;font-weight:500;">' + v.n + '</div>'
+      + '<div style="font-size:11px;color:#64748b;">' + v.c + '</div></div>'
       + '<div style="font-size:12px;color:#3b82f6;font-weight:600;">' + v.l + ' €/m²</div>'
       + '</div>';
   }
   sugg.innerHTML = html;
   sugg.style.display = 'block';
-  // Attacher les événements après injection
   var items = sugg.querySelectorAll('div[data-nom]');
   for (var j=0; j<items.length; j++) {
     items[j].addEventListener('mouseenter', function(){ this.style.background='rgba(255,255,255,0.06)'; });
@@ -680,15 +650,13 @@ function calculate(){
   document.getElementById('kpiMensualite').textContent  = fmtEuro(mensuel);
   document.getElementById('kpiRendBrut').textContent    = fmtPct(rendBrut);
   document.getElementById('kpiRendNet').textContent     = fmtPct(rendNet);
-  var efEl=document.getElementById('kpiEffort'); efEl.textContent=cashflow<0?fmtEuro(Math.abs(cashflow)):'—'; efEl.style.color=cashflow<0?'#f87171':'#94a3b8';
+  var efEl=document.getElementById('kpiEffort');
+  efEl.textContent=cashflow<0?fmtEuro(Math.abs(cashflow)):'—';
+  efEl.style.color=cashflow<0?'#f87171':'#94a3b8';
 
   var cfEl=document.getElementById('cashflowAmount');
-  var barEl=document.getElementById('cashflowBar');
-  var hEl2=document.getElementById('cashflowHero');
-  hEl2.style.background='rgba(255,255,255,0.03)';
-  hEl2.style.borderColor='rgba(255,255,255,0.07)';
-  var vEl =document.getElementById('cashflowVerdict');
   var hEl =document.getElementById('cashflowHero');
+  var vEl =document.getElementById('cashflowVerdict');
   cfEl.textContent=fmtEuro(cashflow);
 
   if(cashflow>300){
@@ -697,12 +665,12 @@ function calculate(){
     vEl.style.cssText='background:rgba(34,184,93,0.1);color:#22b85d;margin-top:16px;display:inline-block;padding:8px 22px;border-radius:99px;font-size:14px;font-weight:600;';
     hEl.style.background='rgba(34,184,93,0.05)';
     hEl.style.borderColor='rgba(34,184,93,0.2)';
-    if(barEl){barEl.style.width='100%';barEl.style.background='#22b85d';}
-    hEl.style.borderColor='rgba(59,130,246,0.3)';
   }else if(cashflow>=0){
     cfEl.className='amount positive';
     vEl.textContent='Investissement équilibré';
     vEl.style.cssText='background:rgba(59,130,246,0.08);color:#3b82f6;margin-top:16px;display:inline-block;padding:8px 22px;border-radius:99px;font-size:14px;font-weight:600;';
+    hEl.style.background='linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.08))';
+    hEl.style.borderColor='rgba(59,130,246,0.2)';
   }else if(cashflow>=-100){
     cfEl.className='amount positive';
     vEl.textContent='Potentiel à débloquer';
@@ -737,7 +705,7 @@ function calculate(){
     }
   }
 
-  document.getElementById('projBody').innerHTML=projRows.map(function(r,i){
+  document.getElementById('projBody').innerHTML=projRows.map(function(r){
     return '<tr>'+
       '<td><span style="display:inline-flex;align-items:center;gap:8px;"><span style="background:#0f172a;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;">AN '+r[0]+'</span></span></td>'+
       '<td style="color:#94a3b8;">'+fmtEuro(r[1])+'</td>'+
@@ -839,14 +807,11 @@ function calculate(){
   var SVGS = {
     'nego': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
     'loyer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-    'lmnp': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
     'coloc': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-    'bank': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
     'check': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     'search': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
   };
 
-  // Extraire la couleur principale du bg pour le stroke SVG
   function getBgColor(bg) {
     if(bg.includes('34,184,93')) return '#22b85d';
     if(bg.includes('59,130,246')) return '#3b82f6';
@@ -869,6 +834,300 @@ function calculate(){
 }
 
 window.addEventListener('load',calculate);
+
+// ── Générateur PDF ────────────────────────────────────────────
+function generatePDF() {
+  var btn = document.querySelector('.btn-pdf');
+  if (btn) { btn.textContent = '⏳ Génération en cours...'; btn.disabled = true; }
+
+  try {
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    var W = 210, H = 297;
+    var margin = 14;
+    var col1 = margin;
+    var contentW = W - margin * 2;
+    var y = 0;
+
+    function getVal(id) {
+      var el = document.getElementById(id);
+      return el ? el.textContent.trim() : '—';
+    }
+
+    function hex2rgb(hex) {
+      return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+    }
+    function setFill(hex) { var c=hex2rgb(hex); doc.setFillColor(c[0],c[1],c[2]); }
+    function setColor(hex) { var c=hex2rgb(hex); doc.setTextColor(c[0],c[1],c[2]); }
+    function setDraw(hex)  { var c=hex2rgb(hex); doc.setDrawColor(c[0],c[1],c[2]); }
+
+    function newPage() {
+      doc.addPage();
+      y = margin;
+      setFill('#0d1117'); doc.rect(0, 0, W, 10, 'F');
+      setFill('#3b82f6'); doc.rect(0, 10, W, 1, 'F');
+      y = 18;
+    }
+
+    function checkPage(needed) {
+      if (y + needed > H - 16) { newPage(); }
+    }
+
+    function sectionTitle(title) {
+      checkPage(14);
+      setFill('#1e293b');
+      doc.roundedRect(col1, y, contentW, 8, 1, 1, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      setColor('#94a3b8');
+      doc.text(title.toUpperCase(), col1 + 4, y + 5.2);
+      y += 12;
+    }
+
+    function kpiRow(items) {
+      var colW = contentW / items.length;
+      checkPage(18);
+      items.forEach(function(item, i) {
+        var x = col1 + i * colW;
+        setFill('#161b22');
+        doc.roundedRect(x, y, colW - 2, 16, 2, 2, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        setColor('#64748b');
+        doc.text(item.label, x + 4, y + 5);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        setColor(item.color || '#f1f5f9');
+        doc.text(item.value, x + 4, y + 12);
+      });
+      y += 20;
+    }
+
+    // ── PAGE 1 ────────────────────────────────────────────────
+    setFill('#0d1117'); doc.rect(0, 0, W, 42, 'F');
+    setFill('#3b82f6'); doc.rect(0, 42, W, 1.5, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    setColor('#ffffff'); doc.text('IMMO', margin, 24);
+    setColor('#3b82f6'); doc.text('LOCK', margin + 28, 24);
+
+    setFill('#1e3a5f');
+    doc.roundedRect(W - margin - 42, 16, 42, 8, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+    setColor('#3b82f6');
+    doc.text('ANALYSE COMPLÈTE', W - margin - 22, 21.5, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+    setColor('#475569');
+    var now = new Date();
+    doc.text('Rapport généré le ' + now.toLocaleDateString('fr-FR'), margin, 35);
+
+    y = 52;
+
+    // Cashflow hero
+    var cashflowRaw = getVal('cashflowAmount');
+    var cashflowNum = parseFloat(cashflowRaw.replace(/[\s\u00a0]/g,'').replace('€','').replace(',','.')) || 0;
+    var cfColor = cashflowNum >= 0 ? '#22b85d' : '#ef4444';
+    var verdictText = getVal('cashflowVerdict');
+
+    setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 28, 3, 3, 'F');
+    setDraw('#1e3a5f'); doc.setLineWidth(0.5); doc.roundedRect(col1, y, contentW, 28, 3, 3, 'S');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+    setColor('#64748b'); doc.text('CASHFLOW MENSUEL NET', col1 + 6, y + 8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(26);
+    setColor(cfColor); doc.text(cashflowRaw, col1 + 6, y + 22);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    setColor(cfColor); doc.text(verdictText, W - margin - 4, y + 16, { align: 'right' });
+
+    y += 34;
+
+    sectionTitle('Indicateurs clés');
+    kpiRow([
+      { label: "Prix d'achat",    value: getVal('kpiPrix'),         color: '#f1f5f9' },
+      { label: 'Frais notaire',   value: getVal('kpiFraisNotaire'), color: '#f1f5f9' },
+      { label: 'Coût total',      value: getVal('kpiCoutTotal'),    color: '#f1f5f9' },
+      { label: 'Capital emprunté',value: getVal('kpiCapital'),      color: '#f1f5f9' },
+    ]);
+    kpiRow([
+      { label: 'Mensualité',      value: getVal('kpiMensualite'),   color: '#f1f5f9' },
+      { label: 'Rendement brut',  value: getVal('kpiRendBrut'),     color: '#3b82f6' },
+      { label: 'Rendement net',   value: getVal('kpiRendNet'),      color: '#3b82f6' },
+      { label: 'Effort mensuel',  value: getVal('kpiEffort'),       color: cashflowNum < 0 ? '#ef4444' : '#94a3b8' },
+    ]);
+
+    // ── Projection 10 ans ─────────────────────────────────────
+    sectionTitle('Projection sur 10 ans');
+    var cols = ['Année','Loyers cumulés','Intérêts payés','Capital remb.','Capital restant','Patrimoine net'];
+    var colXs = [col1+2, col1+22, col1+58, col1+94, col1+126, col1+158];
+
+    checkPage(10);
+    setFill('#0f172a'); doc.rect(col1, y, contentW, 7, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
+    setColor('#64748b');
+    cols.forEach(function(c, i){ doc.text(c, colXs[i], y + 4.8); });
+    y += 7;
+
+    var projRowsDOM = document.querySelectorAll('#projBody tr');
+    projRowsDOM.forEach(function(row, idx) {
+      checkPage(7);
+      if (idx % 2 === 0) { setFill('#0d1117'); doc.rect(col1, y, contentW, 6, 'F'); }
+      var tds = row.querySelectorAll('td');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7);
+      setColor('#f1f5f9'); doc.text('An ' + (idx+1), colXs[0], y + 4.2);
+      doc.setFont('helvetica','normal');
+      setColor('#94a3b8'); if(tds[1]) doc.text(tds[1].textContent.trim(), colXs[1], y + 4.2);
+      if(tds[2]) doc.text(tds[2].textContent.trim(), colXs[2], y + 4.2);
+      setColor('#22b85d'); if(tds[3]) doc.text(tds[3].textContent.trim(), colXs[3], y + 4.2);
+      setColor('#94a3b8'); if(tds[4]) doc.text(tds[4].textContent.trim(), colXs[4], y + 4.2);
+      if(tds[5]) {
+        setColor('#3b82f6'); doc.setFont('helvetica','bold');
+        var pn = tds[5].querySelector('span');
+        doc.text(pn ? pn.textContent.trim() : tds[5].textContent.trim(), colXs[5], y + 4.2);
+      }
+      setDraw('#1e293b'); doc.setLineWidth(0.1);
+      doc.line(col1, y+6, col1+contentW, y+6);
+      y += 6;
+    });
+
+    y += 4;
+
+    // ── PAGE 2 ────────────────────────────────────────────────
+    newPage();
+
+    sectionTitle("Tableau d'amortissement — 12 premiers mois");
+    var amCols = ['Mois','Mensualité','Capital','Intérêts','Capital restant'];
+    var amXs   = [col1+2, col1+30, col1+72, col1+108, col1+144];
+
+    checkPage(10);
+    setFill('#0f172a'); doc.rect(col1, y, contentW, 7, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+    setColor('#64748b');
+    amCols.forEach(function(c,i){ doc.text(c, amXs[i], y+4.8); });
+    y += 7;
+
+    var amortRowsDOM = document.querySelectorAll('#amortBody tr');
+    var maxRows = Math.min(12, amortRowsDOM.length);
+    for (var i = 0; i < maxRows; i++) {
+      checkPage(6);
+      var row = amortRowsDOM[i];
+      var tds = row.querySelectorAll('td');
+      if (i % 2 === 0) { setFill('#0d1117'); doc.rect(col1, y, contentW, 6, 'F'); }
+      doc.setFont('helvetica','bold'); doc.setFontSize(7);
+      setColor('#3b82f6'); if(tds[0]) doc.text(tds[0].textContent.trim(), amXs[0], y+4.2);
+      doc.setFont('helvetica','normal');
+      setColor('#64748b'); if(tds[1]) doc.text(tds[1].textContent.trim(), amXs[1], y+4.2);
+      setColor('#22b85d'); if(tds[2]) doc.text(tds[2].textContent.trim(), amXs[2], y+4.2);
+      setColor('#94a3b8'); if(tds[3]) doc.text(tds[3].textContent.trim(), amXs[3], y+4.2);
+      setColor('#64748b'); if(tds[4]) doc.text(tds[4].textContent.trim(), amXs[4], y+4.2);
+      setDraw('#1e293b'); doc.setLineWidth(0.1);
+      doc.line(col1, y+6, col1+contentW, y+6);
+      y += 6;
+    }
+
+    if (amortRowsDOM.length > 12) {
+      checkPage(8);
+      doc.setFont('helvetica','italic'); doc.setFontSize(7);
+      setColor('#475569');
+      doc.text('… et ' + (amortRowsDOM.length - 12) + ' mois supplémentaires disponibles dans l\'application.', col1+2, y+5);
+      y += 10;
+    }
+
+    y += 6;
+
+    // ── Optimisation fiscale ──────────────────────────────────
+    sectionTitle('Optimisation fiscale');
+    var fiscalCards = document.querySelectorAll('.fiscal-card');
+    var fiscW = (contentW - 6) / 4;
+    checkPage(28);
+    fiscalCards.forEach(function(card, i) {
+      var fx = col1 + i * (fiscW + 2);
+      var isReco = card.classList.contains('recommended');
+      var regime = card.querySelector('.regime');
+      var impot  = card.querySelector('.impot strong');
+      var tag    = card.querySelector('.tag');
+
+      setFill(isReco ? '#1e3a5f' : '#161b22');
+      doc.roundedRect(fx, y, fiscW, 26, 2, 2, 'F');
+      if (isReco) { setDraw('#3b82f6'); doc.setLineWidth(0.4); doc.roundedRect(fx, y, fiscW, 26, 2, 2, 'S'); }
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+      setColor(isReco ? '#60a5fa' : '#f1f5f9');
+      if (regime) {
+        var lines = doc.splitTextToSize(regime.textContent.trim(), fiscW - 4);
+        doc.text(lines, fx+3, y+6);
+      }
+      if (tag) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(6);
+        setColor(isReco ? '#3b82f6' : '#64748b');
+        doc.text(tag.textContent.trim().toUpperCase(), fx+3, y+13);
+      }
+      if (impot) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(8);
+        setColor(isReco ? '#22b85d' : '#94a3b8');
+        doc.text(impot.textContent.trim(), fx+3, y+22);
+      }
+    });
+    y += 32;
+
+    // ── Stratégies ────────────────────────────────────────────
+    sectionTitle('Stratégies pour améliorer le cashflow');
+    var stratItems = document.querySelectorAll('.strat-item');
+    stratItems.forEach(function(item) {
+      var title = item.querySelector('h4');
+      var desc  = item.querySelector('p');
+      var gain  = item.querySelector('.gain');
+      if (!title) return;
+      checkPage(22);
+      setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 19, 2, 2, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+      setColor('#f1f5f9'); doc.text(title.textContent.trim(), col1+4, y+7);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7);
+      setColor('#94a3b8');
+      var descText = desc ? desc.textContent.trim() : '';
+      var descLines = doc.splitTextToSize(descText, contentW - 55);
+      doc.text(descLines.slice(0,2), col1+4, y+12.5);
+      if (gain) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        setColor('#22b85d');
+        doc.text(gain.textContent.trim(), col1+contentW-3, y+7, { align:'right' });
+      }
+      y += 23;
+    });
+
+    // ── Disclaimer ────────────────────────────────────────────
+    checkPage(20);
+    y += 4;
+    setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 14, 2, 2, 'F');
+    doc.setFont('helvetica','italic'); doc.setFontSize(7);
+    setColor('#475569');
+    var disclaimer = "Ce rapport est une estimation automatique basée sur les informations fournies. Les résultats sont indicatifs et ne constituent pas un conseil financier ou fiscal. Consultez un professionnel avant toute décision d'investissement.";
+    var dLines = doc.splitTextToSize(disclaimer, contentW - 8);
+    doc.text(dLines, col1+4, y+5);
+    y += 18;
+
+    // ── Pied de page ──────────────────────────────────────────
+    var totalPages = doc.internal.getNumberOfPages();
+    for (var p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      setFill('#0d1117'); doc.rect(0, H-10, W, 10, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+      setColor('#334155');
+      doc.text('ImmoLock — Analyse immobilière complète · Rapport confidentiel · immolock.github.io/analyse', margin, H-4);
+      doc.text('Page ' + p + ' / ' + totalPages, W-margin, H-4, { align:'right' });
+    }
+
+    var date = new Date().toISOString().slice(0,10);
+    doc.save('ImmoLock-Analyse-' + date + '.pdf');
+
+  } catch(err) {
+    console.error('PDF error:', err);
+    alert('Erreur lors de la génération du PDF. Assurez-vous que l\'analyse a été calculée.');
+  } finally {
+    if (btn) { btn.innerHTML = '<span>📄</span> Télécharger le rapport PDF complet'; btn.disabled = false; }
+  }
+}
 </script>
 </body>
 </html>
