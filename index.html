@@ -550,7 +550,7 @@
 
     <!-- Bouton PDF -->
     <button class="btn-pdf" onclick="generatePDF()">
-      <span>📄</span> Télécharger le rapport PDF complet
+      <span>📄</span> Télécharger la fiche de synthèse PDF
     </button>
 
     <div style="height:60px;"></div>
@@ -835,7 +835,7 @@ function calculate(){
 
 window.addEventListener('load',calculate);
 
-// ── Générateur PDF ────────────────────────────────────────────
+// ── Fiche synthèse PDF 1 page style CGP ──────────────────────
 function generatePDF() {
   var btn = document.querySelector('.btn-pdf');
   if (btn) { btn.textContent = '⏳ Génération en cours...'; btn.disabled = true; }
@@ -845,287 +845,250 @@ function generatePDF() {
     var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     var W = 210, H = 297;
-    var margin = 14;
-    var col1 = margin;
-    var contentW = W - margin * 2;
-    var y = 0;
+    var m = 14; // margin
+    var cW = W - m * 2; // content width
 
-    function getVal(id) {
-      var el = document.getElementById(id);
-      return el ? el.textContent.trim() : '—';
-    }
+    // ── Helpers ───────────────────────────────────────────────
+    function getVal(id) { var el=document.getElementById(id); return el?el.textContent.trim():'—'; }
+    function rgb(hex) { return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]; }
+    function fill(hex) { var c=rgb(hex); doc.setFillColor(c[0],c[1],c[2]); }
+    function color(hex) { var c=rgb(hex); doc.setTextColor(c[0],c[1],c[2]); }
+    function draw(hex) { var c=rgb(hex); doc.setDrawColor(c[0],c[1],c[2]); }
+    function bold(size) { doc.setFont('helvetica','bold'); doc.setFontSize(size); }
+    function normal(size) { doc.setFont('helvetica','normal'); doc.setFontSize(size); }
+    function italic(size) { doc.setFont('helvetica','italic'); doc.setFontSize(size); }
 
-    function hex2rgb(hex) {
-      return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
-    }
-    function setFill(hex) { var c=hex2rgb(hex); doc.setFillColor(c[0],c[1],c[2]); }
-    function setColor(hex) { var c=hex2rgb(hex); doc.setTextColor(c[0],c[1],c[2]); }
-    function setDraw(hex)  { var c=hex2rgb(hex); doc.setDrawColor(c[0],c[1],c[2]); }
-
-    function newPage() {
-      doc.addPage();
-      y = margin;
-      setFill('#0d1117'); doc.rect(0, 0, W, 10, 'F');
-      setFill('#3b82f6'); doc.rect(0, 10, W, 1, 'F');
-      y = 18;
-    }
-
-    function checkPage(needed) {
-      if (y + needed > H - 16) { newPage(); }
-    }
-
-    function sectionTitle(title) {
-      checkPage(14);
-      setFill('#1e293b');
-      doc.roundedRect(col1, y, contentW, 8, 1, 1, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      setColor('#94a3b8');
-      doc.text(title.toUpperCase(), col1 + 4, y + 5.2);
-      y += 12;
-    }
-
-    function kpiRow(items) {
-      var colW = contentW / items.length;
-      checkPage(18);
-      items.forEach(function(item, i) {
-        var x = col1 + i * colW;
-        setFill('#161b22');
-        doc.roundedRect(x, y, colW - 2, 16, 2, 2, 'F');
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(7);
-        setColor('#64748b');
-        doc.text(item.label, x + 4, y + 5);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        setColor(item.color || '#f1f5f9');
-        doc.text(item.value, x + 4, y + 12);
-      });
-      y += 20;
-    }
-
-    // ── PAGE 1 ────────────────────────────────────────────────
-    setFill('#0d1117'); doc.rect(0, 0, W, 42, 'F');
-    setFill('#3b82f6'); doc.rect(0, 42, W, 1.5, 'F');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    setColor('#ffffff'); doc.text('IMMO', margin, 24);
-    setColor('#3b82f6'); doc.text('LOCK', margin + 28, 24);
-
-    setFill('#1e3a5f');
-    doc.roundedRect(W - margin - 42, 16, 42, 8, 2, 2, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
-    setColor('#3b82f6');
-    doc.text('ANALYSE COMPLÈTE', W - margin - 22, 21.5, { align: 'center' });
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-    setColor('#475569');
-    var now = new Date();
-    doc.text('Rapport généré le ' + now.toLocaleDateString('fr-FR'), margin, 35);
-
-    y = 52;
-
-    // Cashflow hero
+    // ── Données ───────────────────────────────────────────────
     var cashflowRaw = getVal('cashflowAmount');
-    var cashflowNum = parseFloat(cashflowRaw.replace(/[\s\u00a0]/g,'').replace('€','').replace(',','.')) || 0;
-    var cfColor = cashflowNum >= 0 ? '#22b85d' : '#ef4444';
+    var cashflowNum = parseFloat(cashflowRaw.replace(/[\s\u00a0]/g,'').replace('€','').replace(',','.').replace('+','')) || 0;
     var verdictText = getVal('cashflowVerdict');
+    var ville = document.getElementById('villeInput') ? document.getElementById('villeInput').value : '';
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
 
-    setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 28, 3, 3, 'F');
-    setDraw('#1e3a5f'); doc.setLineWidth(0.5); doc.roundedRect(col1, y, contentW, 28, 3, 3, 'S');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-    setColor('#64748b'); doc.text('CASHFLOW MENSUEL NET', col1 + 6, y + 8);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(26);
-    setColor(cfColor); doc.text(cashflowRaw, col1 + 6, y + 22);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-    setColor(cfColor); doc.text(verdictText, W - margin - 4, y + 16, { align: 'right' });
+    // Couleurs selon cashflow
+    var cfColor  = cashflowNum >= 0 ? '#16a34a' : '#dc2626';
+    var cfBg     = cashflowNum >= 0 ? '#f0fdf4' : '#fef2f2';
+    var cfBorder = cashflowNum >= 0 ? '#86efac' : '#fca5a5';
 
-    y += 34;
-
-    sectionTitle('Indicateurs clés');
-    kpiRow([
-      { label: "Prix d'achat",    value: getVal('kpiPrix'),         color: '#f1f5f9' },
-      { label: 'Frais notaire',   value: getVal('kpiFraisNotaire'), color: '#f1f5f9' },
-      { label: 'Coût total',      value: getVal('kpiCoutTotal'),    color: '#f1f5f9' },
-      { label: 'Capital emprunté',value: getVal('kpiCapital'),      color: '#f1f5f9' },
-    ]);
-    kpiRow([
-      { label: 'Mensualité',      value: getVal('kpiMensualite'),   color: '#f1f5f9' },
-      { label: 'Rendement brut',  value: getVal('kpiRendBrut'),     color: '#3b82f6' },
-      { label: 'Rendement net',   value: getVal('kpiRendNet'),      color: '#3b82f6' },
-      { label: 'Effort mensuel',  value: getVal('kpiEffort'),       color: cashflowNum < 0 ? '#ef4444' : '#94a3b8' },
-    ]);
-
-    // ── Projection 10 ans ─────────────────────────────────────
-    sectionTitle('Projection sur 10 ans');
-    var cols = ['Année','Loyers cumulés','Intérêts payés','Capital remb.','Capital restant','Patrimoine net'];
-    var colXs = [col1+2, col1+22, col1+58, col1+94, col1+126, col1+158];
-
-    checkPage(10);
-    setFill('#0f172a'); doc.rect(col1, y, contentW, 7, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
-    setColor('#64748b');
-    cols.forEach(function(c, i){ doc.text(c, colXs[i], y + 4.8); });
-    y += 7;
-
-    var projRowsDOM = document.querySelectorAll('#projBody tr');
-    projRowsDOM.forEach(function(row, idx) {
-      checkPage(7);
-      if (idx % 2 === 0) { setFill('#0d1117'); doc.rect(col1, y, contentW, 6, 'F'); }
-      var tds = row.querySelectorAll('td');
-      doc.setFont('helvetica','bold'); doc.setFontSize(7);
-      setColor('#f1f5f9'); doc.text('An ' + (idx+1), colXs[0], y + 4.2);
-      doc.setFont('helvetica','normal');
-      setColor('#94a3b8'); if(tds[1]) doc.text(tds[1].textContent.trim(), colXs[1], y + 4.2);
-      if(tds[2]) doc.text(tds[2].textContent.trim(), colXs[2], y + 4.2);
-      setColor('#22b85d'); if(tds[3]) doc.text(tds[3].textContent.trim(), colXs[3], y + 4.2);
-      setColor('#94a3b8'); if(tds[4]) doc.text(tds[4].textContent.trim(), colXs[4], y + 4.2);
-      if(tds[5]) {
-        setColor('#3b82f6'); doc.setFont('helvetica','bold');
-        var pn = tds[5].querySelector('span');
-        doc.text(pn ? pn.textContent.trim() : tds[5].textContent.trim(), colXs[5], y + 4.2);
+    // Régime fiscal recommandé
+    var bestRegime = '—', bestImpot = '—';
+    document.querySelectorAll('.fiscal-card').forEach(function(c){
+      if(c.classList.contains('recommended')){
+        var r=c.querySelector('.regime'); var i=c.querySelector('.impot strong');
+        if(r) bestRegime=r.textContent.trim();
+        if(i) bestImpot=i.textContent.trim();
       }
-      setDraw('#1e293b'); doc.setLineWidth(0.1);
-      doc.line(col1, y+6, col1+contentW, y+6);
-      y += 6;
     });
 
-    y += 4;
+    // Stratégies (max 3)
+    var stratTexts = [];
+    document.querySelectorAll('.strat-item').forEach(function(s){
+      if(stratTexts.length>=3) return;
+      var t=s.querySelector('h4'); var g=s.querySelector('.gain');
+      if(t) stratTexts.push({ title: t.textContent.trim(), gain: g?g.textContent.trim():'' });
+    });
 
-    // ── PAGE 2 ────────────────────────────────────────────────
-    newPage();
+    // Projection 5 ans
+    var proj5 = [];
+    document.querySelectorAll('#projBody tr').forEach(function(r,i){
+      if(i>=5) return;
+      var tds=r.querySelectorAll('td');
+      proj5.push({
+        an: 'An '+(i+1),
+        loyers: tds[1]?tds[1].textContent.trim():'—',
+        capital: tds[3]?tds[3].textContent.trim():'—',
+        patrimoine: tds[5]?(tds[5].querySelector('span')?tds[5].querySelector('span').textContent.trim():tds[5].textContent.trim()):'—',
+      });
+    });
 
-    sectionTitle("Tableau d'amortissement — 12 premiers mois");
-    var amCols = ['Mois','Mensualité','Capital','Intérêts','Capital restant'];
-    var amXs   = [col1+2, col1+30, col1+72, col1+108, col1+144];
+    // ══════════════════════════════════════════════════════════
+    //  FICHE SYNTHÈSE 1 PAGE — STYLE CGP
+    // ══════════════════════════════════════════════════════════
 
-    checkPage(10);
-    setFill('#0f172a'); doc.rect(col1, y, contentW, 7, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
-    setColor('#64748b');
-    amCols.forEach(function(c,i){ doc.text(c, amXs[i], y+4.8); });
-    y += 7;
+    // ── HEADER ────────────────────────────────────────────────
+    // Bande bleue haut
+    fill('#1d4ed8'); doc.rect(0, 0, W, 22, 'F');
 
-    var amortRowsDOM = document.querySelectorAll('#amortBody tr');
-    var maxRows = Math.min(12, amortRowsDOM.length);
-    for (var i = 0; i < maxRows; i++) {
-      checkPage(6);
-      var row = amortRowsDOM[i];
-      var tds = row.querySelectorAll('td');
-      if (i % 2 === 0) { setFill('#0d1117'); doc.rect(col1, y, contentW, 6, 'F'); }
-      doc.setFont('helvetica','bold'); doc.setFontSize(7);
-      setColor('#3b82f6'); if(tds[0]) doc.text(tds[0].textContent.trim(), amXs[0], y+4.2);
-      doc.setFont('helvetica','normal');
-      setColor('#64748b'); if(tds[1]) doc.text(tds[1].textContent.trim(), amXs[1], y+4.2);
-      setColor('#22b85d'); if(tds[2]) doc.text(tds[2].textContent.trim(), amXs[2], y+4.2);
-      setColor('#94a3b8'); if(tds[3]) doc.text(tds[3].textContent.trim(), amXs[3], y+4.2);
-      setColor('#64748b'); if(tds[4]) doc.text(tds[4].textContent.trim(), amXs[4], y+4.2);
-      setDraw('#1e293b'); doc.setLineWidth(0.1);
-      doc.line(col1, y+6, col1+contentW, y+6);
-      y += 6;
+    // Logo IMMOLOCK
+    bold(16); color('#ffffff');
+    doc.text('IMMO', m, 14);
+    bold(16); color('#93c5fd');
+    doc.text('LOCK', m + 22, 14);
+
+    // Titre fiche
+    normal(8); color('#bfdbfe');
+    doc.text('FICHE DE SYNTHÈSE — ANALYSE IMMOBILIÈRE', m + 48, 10);
+    italic(7); color('#93c5fd');
+    doc.text('Document confidentiel généré le ' + dateStr, m + 48, 16);
+
+    // Bien + date à droite
+    bold(8); color('#ffffff');
+    doc.text('immolock.github.io', W - m, 14, { align: 'right' });
+
+    // Ligne séparatrice fine
+    fill('#3b82f6'); doc.rect(0, 22, W, 1, 'F');
+
+    var y = 30;
+
+    // ── BIEN ANALYSÉ ─────────────────────────────────────────
+    if (ville) {
+      fill('#f1f5f9'); doc.roundedRect(m, y, cW, 9, 1.5, 1.5, 'F');
+      bold(8); color('#1e3a8a');
+      doc.text('BIEN ANALYSÉ', m + 4, y + 5.5);
+      normal(8); color('#1e40af');
+      doc.text(ville, m + 35, y + 5.5);
+      y += 13;
     }
 
-    if (amortRowsDOM.length > 12) {
-      checkPage(8);
-      doc.setFont('helvetica','italic'); doc.setFontSize(7);
-      setColor('#475569');
-      doc.text('… et ' + (amortRowsDOM.length - 12) + ' mois supplémentaires disponibles dans l\'application.', col1+2, y+5);
-      y += 10;
-    }
+    // ── VERDICT CASHFLOW (bloc central) ──────────────────────
+    var cfRgb = cashflowNum >= 0 ? rgb('#f0fdf4') : rgb('#fef2f2');
+    var cfBorderRgb = cashflowNum >= 0 ? rgb('#86efac') : rgb('#fca5a5');
+    doc.setFillColor(cfRgb[0], cfRgb[1], cfRgb[2]);
+    doc.roundedRect(m, y, cW, 30, 2, 2, 'F');
+    doc.setDrawColor(cfBorderRgb[0], cfBorderRgb[1], cfBorderRgb[2]);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(m, y, cW, 30, 2, 2, 'S');
 
+    normal(8); color('#64748b');
+    doc.text('CASHFLOW MENSUEL NET', m + 5, y + 8);
+
+    bold(28); color(cfColor);
+    doc.text(cashflowRaw, m + 5, y + 22);
+
+    bold(9); color(cfColor);
+    doc.text(verdictText, W - m - 4, y + 16, { align: 'right' });
+
+    normal(7.5); color('#64748b');
+    doc.text('après remboursement du crédit et charges', W - m - 4, y + 22, { align: 'right' });
+
+    y += 36;
+
+    // ── KPIs EN GRILLE 3x2 ───────────────────────────────────
+    var kpis = [
+      { label: "Prix d'achat",     value: getVal('kpiPrix'),         hi: false },
+      { label: 'Frais de notaire', value: getVal('kpiFraisNotaire'), hi: false },
+      { label: 'Coût total projet',value: getVal('kpiCoutTotal'),    hi: false },
+      { label: 'Mensualité crédit',value: getVal('kpiMensualite'),   hi: false },
+      { label: 'Rendement brut',   value: getVal('kpiRendBrut'),     hi: true  },
+      { label: 'Rendement net',    value: getVal('kpiRendNet'),      hi: true  },
+    ];
+    var kW = (cW - 4) / 3;
+    var kH = 18;
+    [0,1,2].forEach(function(row) {
+      [0,1,2].forEach(function(col) {
+        var idx = row * 3 + col;
+        if (idx >= kpis.length) return;
+        var kpi = kpis[idx];
+        var kx = m + col * (kW + 2);
+        var ky = y + row * (kH + 3);
+        fill('#f8fafc'); doc.roundedRect(kx, ky, kW, kH, 1.5, 1.5, 'F');
+        draw('#e2e8f0'); doc.setLineWidth(0.3);
+        doc.roundedRect(kx, ky, kW, kH, 1.5, 1.5, 'S');
+        normal(6.5); color('#64748b');
+        doc.text(kpi.label.toUpperCase(), kx + 3, ky + 5.5);
+        bold(10); color(kpi.hi ? '#1d4ed8' : '#0f172a');
+        doc.text(kpi.value, kx + 3, ky + 13.5);
+      });
+    });
+    y += 2 * (kH + 3) + kH + 6;
+
+    // ── PROJECTION 5 ANS ─────────────────────────────────────
+    bold(8); color('#1e3a8a');
+    doc.text('PROJECTION PATRIMONIALE SUR 5 ANS', m, y);
+    draw('#cbd5e1'); doc.setLineWidth(0.3);
+    doc.line(m, y + 2, m + cW, y + 2);
     y += 6;
 
-    // ── Optimisation fiscale ──────────────────────────────────
-    sectionTitle('Optimisation fiscale');
-    var fiscalCards = document.querySelectorAll('.fiscal-card');
-    var fiscW = (contentW - 6) / 4;
-    checkPage(28);
-    fiscalCards.forEach(function(card, i) {
-      var fx = col1 + i * (fiscW + 2);
-      var isReco = card.classList.contains('recommended');
-      var regime = card.querySelector('.regime');
-      var impot  = card.querySelector('.impot strong');
-      var tag    = card.querySelector('.tag');
+    // En-têtes
+    var pCols = ['', 'Loyers cumulés', 'Capital remboursé', 'Patrimoine net estimé'];
+    var pXs   = [m + 2, m + 30, m + 85, m + 140];
+    bold(6.5); color('#94a3b8');
+    pCols.forEach(function(c, i) { doc.text(c, pXs[i], y); });
+    y += 5;
 
-      setFill(isReco ? '#1e3a5f' : '#161b22');
-      doc.roundedRect(fx, y, fiscW, 26, 2, 2, 'F');
-      if (isReco) { setDraw('#3b82f6'); doc.setLineWidth(0.4); doc.roundedRect(fx, y, fiscW, 26, 2, 2, 'S'); }
-
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-      setColor(isReco ? '#60a5fa' : '#f1f5f9');
-      if (regime) {
-        var lines = doc.splitTextToSize(regime.textContent.trim(), fiscW - 4);
-        doc.text(lines, fx+3, y+6);
-      }
-      if (tag) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(6);
-        setColor(isReco ? '#3b82f6' : '#64748b');
-        doc.text(tag.textContent.trim().toUpperCase(), fx+3, y+13);
-      }
-      if (impot) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(8);
-        setColor(isReco ? '#22b85d' : '#94a3b8');
-        doc.text(impot.textContent.trim(), fx+3, y+22);
-      }
+    proj5.forEach(function(r, i) {
+      if (i % 2 === 0) { fill('#f8fafc'); doc.rect(m, y - 3, cW, 7, 'F'); }
+      bold(7.5); color('#1e40af'); doc.text(r.an, pXs[0], y + 1.5);
+      normal(7.5); color('#475569');
+      doc.text(r.loyers,     pXs[1], y + 1.5);
+      doc.text(r.capital,    pXs[2], y + 1.5);
+      bold(7.5); color('#16a34a');
+      doc.text(r.patrimoine, pXs[3], y + 1.5);
+      draw('#e2e8f0'); doc.setLineWidth(0.2);
+      doc.line(m, y + 4, m + cW, y + 4);
+      y += 7;
     });
-    y += 32;
-
-    // ── Stratégies ────────────────────────────────────────────
-    sectionTitle('Stratégies pour améliorer le cashflow');
-    var stratItems = document.querySelectorAll('.strat-item');
-    stratItems.forEach(function(item) {
-      var title = item.querySelector('h4');
-      var desc  = item.querySelector('p');
-      var gain  = item.querySelector('.gain');
-      if (!title) return;
-      checkPage(22);
-      setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 19, 2, 2, 'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-      setColor('#f1f5f9'); doc.text(title.textContent.trim(), col1+4, y+7);
-      doc.setFont('helvetica','normal'); doc.setFontSize(7);
-      setColor('#94a3b8');
-      var descText = desc ? desc.textContent.trim() : '';
-      var descLines = doc.splitTextToSize(descText, contentW - 55);
-      doc.text(descLines.slice(0,2), col1+4, y+12.5);
-      if (gain) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-        setColor('#22b85d');
-        doc.text(gain.textContent.trim(), col1+contentW-3, y+7, { align:'right' });
-      }
-      y += 23;
-    });
-
-    // ── Disclaimer ────────────────────────────────────────────
-    checkPage(20);
     y += 4;
-    setFill('#0f172a'); doc.roundedRect(col1, y, contentW, 14, 2, 2, 'F');
-    doc.setFont('helvetica','italic'); doc.setFontSize(7);
-    setColor('#475569');
-    var disclaimer = "Ce rapport est une estimation automatique basée sur les informations fournies. Les résultats sont indicatifs et ne constituent pas un conseil financier ou fiscal. Consultez un professionnel avant toute décision d'investissement.";
-    var dLines = doc.splitTextToSize(disclaimer, contentW - 8);
-    doc.text(dLines, col1+4, y+5);
-    y += 18;
 
-    // ── Pied de page ──────────────────────────────────────────
-    var totalPages = doc.internal.getNumberOfPages();
-    for (var p = 1; p <= totalPages; p++) {
-      doc.setPage(p);
-      setFill('#0d1117'); doc.rect(0, H-10, W, 10, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
-      setColor('#334155');
-      doc.text('ImmoLock — Analyse immobilière complète · Rapport confidentiel · immolock.github.io/analyse', margin, H-4);
-      doc.text('Page ' + p + ' / ' + totalPages, W-margin, H-4, { align:'right' });
+    // ── OPTIMISATION FISCALE ──────────────────────────────────
+    bold(8); color('#1e3a8a');
+    doc.text('OPTIMISATION FISCALE', m, y);
+    draw('#cbd5e1'); doc.setLineWidth(0.3);
+    doc.line(m, y + 2, m + cW, y + 2);
+    y += 7;
+
+    fill('#eff6ff'); doc.roundedRect(m, y, cW, 12, 1.5, 1.5, 'F');
+    draw('#bfdbfe'); doc.setLineWidth(0.4);
+    doc.roundedRect(m, y, cW, 12, 1.5, 1.5, 'S');
+    bold(7); color('#1d4ed8');
+    doc.text('✓ Régime recommandé : ' + bestRegime, m + 4, y + 5.5);
+    normal(7); color('#1e40af');
+    doc.text('Impôt estimé / an : ' + bestImpot + '  —  Le plus avantageux pour votre situation.', m + 4, y + 10);
+    y += 17;
+
+    // ── LEVIERS D'OPTIMISATION ────────────────────────────────
+    if (stratTexts.length > 0) {
+      bold(8); color('#1e3a8a');
+      doc.text('LEVIERS D\'OPTIMISATION', m, y);
+      draw('#cbd5e1'); doc.setLineWidth(0.3);
+      doc.line(m, y + 2, m + cW, y + 2);
+      y += 7;
+
+      stratTexts.forEach(function(s) {
+        draw('#e2e8f0'); doc.setLineWidth(0.3);
+        doc.roundedRect(m, y, cW, 10, 1.5, 1.5, 'S');
+        fill('#1d4ed8'); doc.rect(m, y, 2, 10, 'F');
+        bold(7.5); color('#0f172a');
+        doc.text(s.title, m + 6, y + 4.5);
+        if (s.gain) {
+          bold(7); color('#16a34a');
+          doc.text(s.gain, W - m - 3, y + 4.5, { align: 'right' });
+        }
+        y += 13;
+      });
     }
 
-    var date = new Date().toISOString().slice(0,10);
-    doc.save('ImmoLock-Analyse-' + date + '.pdf');
+    // ── FOOTER ───────────────────────────────────────────────
+    // Ligne séparatrice
+    fill('#e2e8f0'); doc.rect(0, H - 18, W, 0.5, 'F');
+
+    // Bloc footer
+    fill('#f8fafc'); doc.rect(0, H - 17.5, W, 17.5, 'F');
+    bold(7); color('#1d4ed8');
+    doc.text('IMMO', m, H - 9);
+    normal(7); color('#1e40af');
+    doc.text('LOCK', m + 9.5, H - 9);
+    doc.text(' · immolock.github.io/analyse', m + 18, H - 9);
+
+    italic(6); color('#94a3b8');
+    var disclaimer = 'Ce document est une estimation automatique à titre indicatif. Il ne constitue pas un conseil en investissement ou fiscal. Consultez un professionnel.';
+    var dLines = doc.splitTextToSize(disclaimer, cW - 10);
+    doc.text(dLines, m, H - 5);
+
+    // ── Export ────────────────────────────────────────────────
+    var exportDate = new Date().toISOString().slice(0,10);
+    doc.save('ImmoLock-Synthese-' + exportDate + '.pdf');
+
+    // ── Export ────────────────────────────────────────────────
+    var exportDate = new Date().toISOString().slice(0,10);
+    doc.save('ImmoLock-Synthese-' + exportDate + '.pdf');
 
   } catch(err) {
     console.error('PDF error:', err);
     alert('Erreur lors de la génération du PDF. Assurez-vous que l\'analyse a été calculée.');
   } finally {
-    if (btn) { btn.innerHTML = '<span>📄</span> Télécharger le rapport PDF complet'; btn.disabled = false; }
+    if (btn) { btn.innerHTML = '<span>📄</span> Télécharger la fiche de synthèse PDF'; btn.disabled = false; }
   }
 }
 </script>
