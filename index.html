@@ -807,7 +807,7 @@ function calculate(){
     strats.push({icon:'search',bg:'rgba(59,130,246,0.08)',title:'Vérifier le loyer de marché',desc:'Sélectionnez votre ville et renseignez la surface pour obtenir une estimation du loyer de marché précise à la ville.',gain:'Renseignez ville + surface m²'});
   }
   strats.push({icon:'🛋️',bg:'rgba(59,130,246,0.1)',title:'Passer en location meublée (LMNP)',desc:'La location meublée permet d\'augmenter le loyer de 10 à 20% et d\'optimiser la fiscalité.',gain:'+10 à +20% sur le loyer'});
-  strats.push({icon:'coloc',bg:'rgba(255,255,255,0.06)',title:'Colocation',desc:'Diviser le bien en plusieurs chambres peut multiplier les loyers perçus par 1,5 à 2x.',gain:'+50 à +100% de revenus locatifs'});
+  if(surface >= 80){   strats.push({icon:'coloc',bg:'rgba(255,255,255,0.06)',title:'Colocation',desc:'Diviser le bien en plusieurs chambres peut multiplier les loyers perçus par 1,5 à 2x.',gain:'+50 à +100% de revenus locatifs'}); }
 
   var SVGS = {
     'nego': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
